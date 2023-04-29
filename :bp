@@ -1,0 +1,88 @@
+from resplatform import Resy
+from datetime import datetime
+
+# TODO: Set this from the application and not a global
+DEBUG = False
+
+def rank_by_preferred_time(times, weekend_only = False):
+    # TODO: Filter on type, prefer indoor / dining room when possible
+
+    # 20:00 is ideal dinner time, choose reservation based of closeness to that
+    today = datetime.today()
+
+    ideal = '20:00:00'
+    time_fmt = '%H:%M:%S'
+    ranks = {}
+    for t in times:
+        score = 0
+        day, time = t.split(' ')
+        day_delta = datetime.fromisoformat(day) - today
+        score += day_delta.days * 1000
+        #print(time, ideal)
+        time_delta = datetime.strptime(time, time_fmt) - datetime.strptime(ideal, time_fmt)
+        minutes = time_delta.seconds / 60
+        #print(minutes)
+
+        # If res time is before ideal time, subtract 1 day (1440 min) to have direct comparison to later times
+        # subtract 5 from score to favor earlier times over later
+        if minutes > 1200:
+            minutes =  1440 - minutes - 5
+
+        score += minutes
+        ranks[t] = score
+
+    return [k for k, v in sorted(ranks.items(), key=lambda item: item[1])]
+
+def main():
+
+    # My Loup - Resy - 69830
+    # Forin - Resy - 69260
+    # Little Fish = Resy - 4232
+    # MC CLub - Resy - 52556
+    venue_id = '52556'
+    party_size = '2'
+
+
+    resy = Resy()
+
+
+
+    d = resy.get_available_days(venue_id, '2023-05-15', '2023-05-20', party_size)
+    
+    all_times = {}
+    for day in d:
+        t = resy.find_bookings(venue_id, day, party_size)
+        all_times.update(t)
+
+    ranks = rank_by_preferred_time(all_times.keys())
+    for v in ranks:
+        print('{}'.format(v))
+    return
+    for k, v in all_times.items():
+        print('{}\t{}'.format(k, v['token']))
+
+    selected = '2023-05-17 17:00:00'
+
+    bt = resy.get_booking_token(selected, all_times[selected]['token'], party_size)
+    resy.book(bt, test=True)
+    """
+    Flat file  with sites, URLs, and platform
+    Read file with preferred dates/times
+    env file with logins / pws / cc data?
+
+    Launch Sign in Page
+    Login
+    Launch Reservations Page
+    Select with priority of preferred times
+    Select Res
+    Go through appropriate flow based off platform
+
+
+
+
+    Phase 2:
+    Read activation times - know when to fire
+    """
+
+if __name__ == '__main__':
+    main()
