@@ -1,6 +1,13 @@
 import requests
 from datetime import datetime, timedelta
 import logging
+from selenium import webdriver
+from selenium.webdriver.common import By
+from selenium.webdriver.common import Keys
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.chrome.options import Options
 
 class ResPlatform:
 
@@ -21,7 +28,79 @@ class ResPlatform:
         logging.debug(r.text)
 
 class Tock(ResPlatform):
-    pass
+    def __init__(self, venue_name, venue_id, party_size, res_type, headers, de, debug=False):
+
+        self.venue_name = venue_name
+        self.venue_id = venue_id
+        self.party_size = party_size
+        self.res_type = res_type
+        self.de = de
+
+        # TODO: Make this platform agnostic
+        CHROME_PATH = ''
+        options = webdriver.Options()
+        options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        self.driver = webdriver.Chrome(executable_path=CHROME_PATH, options=options)
+
+        super().__init__(headers, de)
+
+    def login(self, username, password):
+        url = 'https://www.exploretock.com/login'
+        email_input = wait.until(ec.presence_of_element_located((By.ID, 'email')))
+        email_input.send_keys(username)
+        pass_input = wait.until(ec.presence_of_element_located((By.ID, 'password'))))
+        self.driver.find_element(By.XPATH, '//section/button')
+        wait.until(ec.presence_of_element_located((By.XPATH, '//main/div/div/div[2]')))
+
+    def get_available_dates(self):
+        url = 'https://www.exploretock.com/{}/experience/{}/{}?date={}&size={}&time={}'.format(
+            self.venue_name
+            self.venue_id,
+            self.res_type,
+            date.strftime(self.DATE_FMT),
+            self.party_size,
+            res_time)
+
+        self.driver.get(url)
+
+        cal_xpath = '//div[@id="experience-dialog-content"]//div[@class="SearchBarMonths"]'
+        cal_element = self.wait.until(ec.presence_of_element_located((By.XPATH, cal_xpath)))
+
+        available_dates = []
+        available_xpath = './/button[contains(@class,"is-available") and contains(@class,"is-in-month")]'
+
+        available_elements = cal_element.find_elements(By.XPATH, available_xpath)
+
+        available_dates = []
+        for element in available_elements:
+            date_str = element.get_attribute('aria-label')
+            available_dates.append(date_str)
+
+        return available_dates
+
+
+    def get_available_times(self, res_date, res_time):
+        url = 'https://www.exploretock.com/{}/experience/{}/{}?date={}&size={}&time={}'.format(
+            self.venue_name
+            self.venue_id,
+            self.res_type,
+            date.strftime(self.DATE_FMT),
+            self.party_size,
+            res_time)
+
+        self.driver.get(url)
+
+        times_xpath = '//div[@id="experience-dialog-content"]//div[@class="SearchModal-body"]'
+        times_container = self.wait.until(ec.presence_of_element_located((By.XPATH, times_xpath)))
+        available_times = []
+        available_elements = times_container.find_elements(By.XPATH, './/div/div/button')
+        for element in available_elements:
+            time_slot = element.find_element(By.XPATH, './/span/span/span').get_attribute('innerText')
+            available_times.append(time_slot)
+        return available_times
+
+    def book(self):
+        pass
 
 class OpenTable(ResPlatform):
     pass
