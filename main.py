@@ -2,6 +2,7 @@ from resplatform import Resy
 from datetime import datetime
 from decision_engine import DecisionEngine
 import logging
+from dotenv import load_dotenv
 
 # TODO: Set this from the application and not a global
 DEBUG = False
@@ -13,11 +14,29 @@ def main():
     # Little Fish = Resy - 4232
     # MC CLub - Resy - 52556
     logging.basicConfig(filename='log.log', level=logging.INFO)
-
+    load_dotenv()
+    # Fiorella
+    # Name fiorellaphilly
+    # ID 181982
+    # Type indoor-dining-reservation
     de = DecisionEngine()
 
-    venue_id = '69830'
     party_size = '2'
+
+    venue_name = 'fiorellaphilly'
+    venue_id = '181982'
+    res_type = 'indoor-dining-reservation'
+
+    username = os.environ['TOCK_USER']
+    password = os.environ['TOCK_PASS']
+
+    tock = Tock(venue_name=venue_name, venue_id=venue_id, res_type=res_type, party_size=party_size, de=de, debug=DEBUG)
+    tock.authenicate(username, password)
+
+
+
+    return
+    venue_id = '69830'
     resy = Resy(venue_id=venue_id, party_size=party_size, de=de, debug=DEBUG)
     resy.authenticate()
 
