@@ -2,8 +2,8 @@ import requests
 from datetime import datetime, timedelta
 import logging
 from selenium import webdriver
-from selenium.webdriver.common import By
-from selenium.webdriver.common import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
@@ -12,12 +12,13 @@ from selenium.webdriver.chrome.options import Options
 class ResPlatform:
 
     def __init__(self, headers, de, debug=False):
-        self.session = requests.Session()
-        self.session.headers.update(headers)
+        if headers is not None:
+            self.session = requests.Session()
+            self.session.headers.update(headers)
         self.debug = debug
         self.de = de
 
-    def update_headers(self, headers)
+    def update_headers(self, headers):
         self.session.headers.update(headers)
 
     def log_request(self, r):
@@ -28,7 +29,10 @@ class ResPlatform:
         logging.debug(r.text)
 
 class Tock(ResPlatform):
-    def __init__(self, venue_name, venue_id, party_size, res_type, headers, de, debug=False):
+
+    DATE_FMT = '%Y-%m-%d'
+
+    def __init__(self, venue_name, venue_id, party_size, res_type, de, headers=None, debug=False):
 
         self.venue_name = venue_name
         self.venue_id = venue_id
@@ -37,27 +41,32 @@ class Tock(ResPlatform):
         self.de = de
 
         # TODO: Make this platform agnostic
-        CHROME_PATH = ''
-        options = webdriver.Options()
+        CHROME_PATH = 'chromedriver_mac64/chromedriver'
+        options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        options.add_argument('--headless=new')
         self.driver = webdriver.Chrome(executable_path=CHROME_PATH, options=options)
+        self.wait = WebDriverWait(self.driver, 5)
 
         super().__init__(headers, de)
 
     def login(self, username, password):
         url = 'https://www.exploretock.com/login'
-        email_input = wait.until(ec.presence_of_element_located((By.ID, 'email')))
+        self.driver.get(url)
+        email_input = self.wait.until(ec.presence_of_element_located((By.ID, 'email')))
         email_input.send_keys(username)
-        pass_input = wait.until(ec.presence_of_element_located((By.ID, 'password'))))
-        self.driver.find_element(By.XPATH, '//section/button')
-        wait.until(ec.presence_of_element_located((By.XPATH, '//main/div/div/div[2]')))
+        pass_input = self.wait.until(ec.presence_of_element_located((By.ID, 'password')))
+        pass_input.send_keys(password)
+        self.driver.find_element(By.XPATH, '//section/button').click()
+        self.wait.until(ec.presence_of_element_located((By.XPATH, '//main/div/div/div[2]')))
 
     def get_available_dates(self):
+        res_time = '20%3A00'
         url = 'https://www.exploretock.com/{}/experience/{}/{}?date={}&size={}&time={}'.format(
-            self.venue_name
+            self.venue_name,
             self.venue_id,
             self.res_type,
-            date.strftime(self.DATE_FMT),
+            datetime.today().strftime(self.DATE_FMT),
             self.party_size,
             res_time)
 
@@ -79,24 +88,27 @@ class Tock(ResPlatform):
         return available_dates
 
 
-    def get_available_times(self, res_date, res_time):
-        url = 'https://www.exploretock.com/{}/experience/{}/{}?date={}&size={}&time={}'.format(
-            self.venue_name
-            self.venue_id,
-            self.res_type,
-            date.strftime(self.DATE_FMT),
-            self.party_size,
-            res_time)
-
-        self.driver.get(url)
+    def get_available_times(self, available_dates):
+        # We are assuming get_available_dates was called right before this and we're on the same page
 
         times_xpath = '//div[@id="experience-dialog-content"]//div[@class="SearchModal-body"]'
         times_container = self.wait.until(ec.presence_of_element_located((By.XPATH, times_xpath)))
         available_times = []
-        available_elements = times_container.find_elements(By.XPATH, './/div/div/button')
-        for element in available_elements:
-            time_slot = element.find_element(By.XPATH, './/span/span/span').get_attribute('innerText')
-            available_times.append(time_slot)
+        for day in available_dates:
+            #Click on available date
+            date_xpath = '//div[@id="experience-dialog-content"]//div[@class="SearchBarMonths"]' \
+                        '//button[@aria-label="{}" and contains(@class,"is-in-month")]'.format(day)
+
+            self.driver.find_element(By.XPATH, date_xpath).click()
+            # Wait until modal finishes loading
+            modal_xpath = '//div[@class="SearchModalExperience is-animating"]'
+            self.wait.until(ec.presence_of_element_located((By.XPATH, times_xpath + modal_xpath)))
+            # Get available time slots
+            available_elements = times_container.find_elements(By.XPATH, './/div/div/button')
+            for element in available_elements:
+                time_slot = element.find_element(By.XPATH, './/span/span/span').get_attribute('innerText')
+                available_times.append('{} {}'.format(day, time_slot))
+
         return available_times
 
     def book(self):
@@ -127,7 +139,7 @@ class Resy(ResPlatform):
         api_key = ''
         auth_token  = ''
         headers = {
-            'authorization': 'ResyAPI api_key="{}'.format(api_key)
+            'authorization': 'ResyAPI api_key="{}"'.format(api_key),
             'x-resy-auth-token': auth_token,
             'x-resy-universal-auth': auth_token
             }

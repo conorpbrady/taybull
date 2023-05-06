@@ -1,7 +1,8 @@
-from resplatform import Resy
+from resplatform import Resy, Tock
 from datetime import datetime
 from decision_engine import DecisionEngine
 import logging
+import os
 from dotenv import load_dotenv
 
 # TODO: Set this from the application and not a global
@@ -31,8 +32,11 @@ def main():
     password = os.environ['TOCK_PASS']
 
     tock = Tock(venue_name=venue_name, venue_id=venue_id, res_type=res_type, party_size=party_size, de=de, debug=DEBUG)
-    tock.authenicate(username, password)
-
+    tock.login(username, password)
+    d = tock.get_available_dates()
+    t = tock.get_available_times(d)
+    for a in t:
+        print(a)
 
 
     return
