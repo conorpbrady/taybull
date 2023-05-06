@@ -24,20 +24,38 @@ def main():
 
     party_size = '2'
 
-    venue_name = 'fiorellaphilly'
-    venue_id = '181982'
-    res_type = 'indoor-dining-reservation'
+    tock_venues = {
+            'Fiorella': {
+                'venue_name': 'fiorellaphilly',
+                'venue_id': '181982',
+                'res_type': 'indoor-dining-reservation'
+                },
+            'theluckywell': {
+                'venue_name': 'theluckywell',
+                'venue_id': '306336',
+                'res_type': 'the-lucky-well-reservation'
+                },
+            'herplace': {
+                'venue_name': 'herplace',
+                'venue_id': '328627',
+                'res_type': 'her-place-table-reservation'
+                }
+
+            }
 
     username = os.environ['TOCK_USER']
     password = os.environ['TOCK_PASS']
 
-    tock = Tock(venue_name=venue_name, venue_id=venue_id, res_type=res_type, party_size=party_size, de=de, debug=DEBUG)
+    tock = Tock(**tock_venues['Fiorella'],  party_size=party_size, de=de, debug=DEBUG)
     tock.login(username, password)
-    d = tock.get_available_dates()
-    t = tock.get_available_times(d)
-    for a in t:
-        print(a)
 
+    # TODO: This is messy, read an input time and try to select that first
+    preferred = datetime.strptime('2023-06-01 21:00', '%Y-%m-%d %H:%M')
+    success, confirmation = tock.book(preferred)
+    if success:
+        print(confirmation)
+    else:
+        print('No slots available')
 
     return
     venue_id = '69830'

@@ -18,13 +18,12 @@ class DecisionEngine:
         ideal = '20:00:00'
         time_fmt = '%H:%M:%S'
         ranks = {}
-        for t in times:
+        for time_slot in times:
             score = 0
-            day, time = t.split(' ')
-            day_delta = datetime.fromisoformat(day) - today
+            day_delta = time_slot - today
             score += day_delta.days * 1000
             #print(time, ideal)
-            time_delta = datetime.strptime(time, time_fmt) - datetime.strptime(ideal, time_fmt)
+            time_delta = time_slot - datetime.strptime(ideal, time_fmt)
             minutes = time_delta.seconds / 60
             #print(minutes)
 
@@ -34,6 +33,6 @@ class DecisionEngine:
                 minutes =  1440 - minutes - 5
 
             score += minutes
-            ranks[t] = score
+            ranks[time_slot] = score
 
         return [k for k, v in sorted(ranks.items(), key=lambda item: item[1])]
