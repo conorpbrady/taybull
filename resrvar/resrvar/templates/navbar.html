@@ -1,0 +1,15 @@
+{% block navbar %}
+<nav>
+  <ul>
+    <li>Resrvar</li>
+    {% if user.authenticated %}
+      <li>Requests</li>
+      <li>Venues</l1>
+      <li>Preferences</li>
+    {% else %}
+      <li>Login</li>
+    {% endif %}
+  </ul>
+</nav>
+
+{% endblock %}
