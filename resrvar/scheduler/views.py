@@ -1,38 +1,131 @@
 from django.shortcuts import render
 from django.views import generic
 from django.views.generic.base import TemplateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import *
-
+from django.contrib.auth import authenticate
+from django.urls import reverse
 # Create your views here.
-
-class LoginView(TemplateView):
-    template_name = 'login.html'
 
 class IndexView(TemplateView):
     template_name = 'index.html'
 
-class BookView(LoginRequiredMixin, generic.ListView):
-    login_url = '/login'
-    redirect_field_name = 'redirect_to'
-
-    context_object_name = 'reservation_request'
+# Venues
+class VenueListView(LoginRequiredMixin, generic.ListView):
     ordering = '-created'
+    template_name = 'venue_list.html'
+    context_object_name = 'venue_list'
+
+    def get_queryset(self):
+        return Venue.objects.filter(
+                owner = self.request.user,
+                active = True)
+
+class VenueCreateView(LoginRequiredMixin, CreateView):
+    model = Venue
+    template_name = 'venue_form.html'
+    fields = ['venue_name', 'venue_id', 'reservation_type', 'display_name', 'res_platform']
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('venues')
+
+class VenueUpdateView(LoginRequiredMixin, UpdateView):
+    model = Venue
+    template_name = 'venue_form.html'
+    fields = ['venue_name', 'venue_id', 'reservation_type', 'display_name', 'res_platform']
+
+    def get_success_url(self):
+        return reverse('venues')
+
+# Requests
+class RequestListView(LoginRequiredMixin, generic.ListView):
+    template_name = 'request_list.html'
+    context_object_name = 'request_list'
+    ordering = '-created'
+
     def get_queryset(self):
         return ReservationRequest.objects.filter(
                 owner = self.request.user,
                 active = True)
 
-class PreferenceView(LoginRequiredMixin, generic.ListView):
+class RequestCreateView(LoginRequiredMixin, CreateView):
+    model = ReservationRequest
+    template_name = 'request_form.html'
+    fields = ['booked_venue', 'decision_preference', 'active']
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        form.instance.status = 'Created'
+        return super().form_valid(form)
+
+    def get_form_class(self):
+        modelform = super().get_form_class()
+        modelform.base_fields['booked_venue'].limit_choices_to={'owner': self.request.user}
+        modelform.base_fields['decision_preference'].limit_choices_to={'owner': self.request.user}
+        return modelform
+
+    def get_success_url(self):
+        return reverse('requests')
+
+class RequestUpdateView(LoginRequiredMixin, UpdateView):
+    model = ReservationRequest
+    template_name = 'request_form.html'
+    fields = ['booked_venue', 'decision_preference', 'active']
+
+    def get_form_class(self):
+        modelform = super().get_form_class()
+        modelform.base_fields['booked_venue'].limit_choices_to={'owner': self.request.user}
+        modelform.base_fields['decision_preference'].limit_choices_to={'owner': self.request.user}
+        return modelform
+
+    def get_success_url(self):
+        return reverse('requests')
+
+# Preferences
+class PreferenceListView(LoginRequiredMixin, generic.ListView):
     ordering = '-created'
+    template_name = 'preference_list.html'
+    context_object_name = 'preference_list'
+
     def get_queryset(self):
         return DecisionPreference.objects.filter(
                 owner = self.request.user,
                 active = True)
 
-class RunHistoryView(LoginRequiredMixin, generic.ListView):
+class PreferenceCreateView(LoginRequiredMixin, CreateView):
+    model = DecisionPreference
+    template_name = 'preference_form.html'
+    fields = ['display_name', 'ideal_time', 'specific_date_flag', 'specific_date', 'threshold',
+              'mon_rank', 'tue_rank', 'wed_rank', 'thu_rank', 'fri_rank', 'sat_rank', 'sun_rank']
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('preferences')
+
+
+class PreferenceUpdateView(LoginRequiredMixin, UpdateView):
+    model = DecisionPreference
+    template_name = 'preference_form.html'
+
+    fields = ['display_name', 'ideal_time', 'specific_date_flag', 'specific_date', 'threshold',
+              'mon_rank', 'tue_rank', 'wed_rank', 'thu_rank', 'fri_rank', 'sat_rank', 'sun_rank']
+
+    def get_success_url(self):
+        return reverse('preferences')
+
+# Run History
+class HistoryListView(LoginRequiredMixin, generic.ListView):
     ordering = '-created'
+    template_name = 'history_list.html'
+
     def get_queryset(self):
         return RunHistory.objects.filter(
-                owner = self.request.user,
-                active = True)
+                owner = self.request.user)

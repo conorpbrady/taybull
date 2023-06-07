@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Decision Preferences</h2>
+<p><a href="{% url 'preference-create' %}">Add new time preference</a></p>
+{% if preference_list %}
+<table>
+  <thead>
+    <th>Name</th>
+    <th>Ideal Time</th>
+    <th>Specific Date</th>
+    <th>Mon</th>
+    <th>Tue</th>
+    <th>Wed</th>
+    <th>Thu</th>
+    <th>Fri</th>
+    <th>Sat</th>
+    <th>Sun</th>
+    <th></th>
+  </thead>
+  <tbody>
+    {% for preference in preference_list %}
+    <tr>
+    <td>{{ preference.display_name }}</td>
+    <td>{{ preference.ideal_time }}</td>
+    <td>{{ preference.specific_date }}</td>
+    <td>{{ preference.mon_rank }}</td>
+    <td>{{ preference.tue_rank }}</td>
+    <td>{{ preference.wed_rank }}</td>
+    <td>{{ preference.thu_rank }}</td>
+    <td>{{ preference.fri_rank }}</td>
+    <td>{{ preference.sat_rank }}</td>
+    <td>{{ preference.sun_rank }}</td>
+    <td><a href="{% url 'preference-update' preference.id %}">Update</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No Preferences Found</p>
+{% endif %}
+
+{% endblock %}

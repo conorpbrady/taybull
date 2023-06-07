@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Reservation Requests</h2>
+<a href="{% url 'request-create' %}">Create a request</a>
+
+{% if request_list %}
+<table>
+  <thead>
+    <th>Venue</th>
+    <th>Decision Preference</th>
+    <th>Status</th>
+    <th>Confirmation</th>
+    <th><th>
+  </thead>
+  <tbody>
+    {% for request in request_list %}
+    <tr>
+       <td>{{ request.booked_venue }}</td>
+       <td>{{ request.decision_preference }}</td>
+       <td>{{ request.status }}</td>
+       <td>{{ request.confirmation }}</td>
+       <td><a href="{% url 'request-update' request.id %}">Update</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No requests found</p>
+{% endif %}
+
+{% endblock %}

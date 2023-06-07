@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Venues</h2>
+<a href="{% url 'venue-create' %}">Add a Venue</a>
+{% if venue_list %}
+<table>
+  <thead>
+    <th>Platform</th>
+    <th>Display Name</th>
+    <th>Venue Name (Tock)</th>
+    <th>Venue ID</th>
+    <th>Reservation Type (Tock)</th>
+  </thead>
+  <tbody>
+  {% for venue in venue_list %}
+    <tr>
+      <td>{{ venue.res_platform }}</td>
+      <td>{{ venue.display_name }}</td>
+      <td>{{ venue.venue_name }}</td>
+      <td>{{ venue.venue_id }}</td>
+      <td>{{ venue.reservation_type }}</td>
+      <td><a href="{% url 'venue-update' venue.id  %}">Update</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No venues found</p>
+{% endif %}
+
+{% endblock %}
