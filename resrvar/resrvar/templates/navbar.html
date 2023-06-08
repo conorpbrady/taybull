@@ -1,4 +1,5 @@
 {% block navbar %}
+<header>
 <nav>
   <ul>
     <li><a href="{% url 'index' %}">Resrvar</a></li>
@@ -6,12 +7,13 @@
     <li><a href="{% url 'requests' %}">Requests</a></li>
     <li><a href="{% url 'history' %}">History</a></li>
     <li><a href="{% url 'venues' %}">Venues</a></li>
-      <li><a href="{% url 'preferences' %}">Preferences</a></li>
-      <li><a href="{% url 'logout' %}">Logout</a></li>
+    <li><a href="{% url 'preferences' %}">Preferences</a></li>
+    <li><a href="{% url 'accountinfo' %}">Account Info</a></li>
+    <li><a href="{% url 'logout' %}">Logout</a></li>
     {% else %}
     <li><a href="{% url 'login' %}">Login</a></li>
     {% endif %}
   </ul>
 </nav>
-
+</header>
 {% endblock %}

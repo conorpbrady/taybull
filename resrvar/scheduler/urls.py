@@ -14,5 +14,9 @@ urlpatterns = [
     path('preferences/create', PreferenceCreateView.as_view(), name='preference-create'),
     path('preferences/<int:pk>/update', PreferenceUpdateView.as_view(), name='preference-update'),
 
+    path('accountinfo', AccountInfoListView.as_view(), name='accountinfo'),
+    path('accountinfo/create', AccountInfoCreateView.as_view(), name='accountinfo-create'),
+    path('accountinfo/<int:pk>/update', AccountInfoUpdateView.as_view(), name='accountinfo-update'),
+
     path('history', HistoryListView.as_view(), name='history')
              ]

@@ -8,17 +8,23 @@
 {% if request_list %}
 <table>
   <thead>
+    <tr>
     <th>Venue</th>
     <th>Decision Preference</th>
+    <th>Account</th>
+    <th>Party Size</th>
     <th>Status</th>
     <th>Confirmation</th>
-    <th><th>
+    <th></th>
+    </tr>
   </thead>
   <tbody>
     {% for request in request_list %}
     <tr>
        <td>{{ request.booked_venue }}</td>
        <td>{{ request.decision_preference }}</td>
+       <td>{{ request.account }}</td>
+       <td>{{ request.party_size }}</td>
        <td>{{ request.status }}</td>
        <td>{{ request.confirmation }}</td>
        <td><a href="{% url 'request-update' request.id %}">Update</a></td>

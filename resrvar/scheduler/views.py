@@ -56,7 +56,7 @@ class RequestListView(LoginRequiredMixin, generic.ListView):
 class RequestCreateView(LoginRequiredMixin, CreateView):
     model = ReservationRequest
     template_name = 'request_form.html'
-    fields = ['booked_venue', 'decision_preference', 'active']
+    fields = ['booked_venue', 'decision_preference', 'account', 'party_size', 'active']
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
@@ -67,6 +67,7 @@ class RequestCreateView(LoginRequiredMixin, CreateView):
         modelform = super().get_form_class()
         modelform.base_fields['booked_venue'].limit_choices_to={'owner': self.request.user}
         modelform.base_fields['decision_preference'].limit_choices_to={'owner': self.request.user}
+        modelform.base_fields['account'].limit_choices_to={'owner': self.request.user}
         return modelform
 
     def get_success_url(self):
@@ -75,7 +76,7 @@ class RequestCreateView(LoginRequiredMixin, CreateView):
 class RequestUpdateView(LoginRequiredMixin, UpdateView):
     model = ReservationRequest
     template_name = 'request_form.html'
-    fields = ['booked_venue', 'decision_preference', 'active']
+    fields = ['booked_venue', 'decision_preference', 'account', 'party_size', 'active']
 
     def get_form_class(self):
         modelform = super().get_form_class()
@@ -120,6 +121,38 @@ class PreferenceUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('preferences')
+
+
+class AccountInfoListView(LoginRequiredMixin, generic.ListView):
+    ordering = '-created'
+    template_name = 'accountinfo_list.html'
+    context_object_name = 'accountinfo_list'
+
+    def get_queryset(self):
+        return AccountInfo.objects.filter(owner = self.request.user)
+
+class AccountInfoCreateView(LoginRequiredMixin, CreateView):
+    model = AccountInfo
+    template_name = 'accountinfo_form.html'
+
+    fields = ['display_name', 'resy_api_key', 'resy_auth_token', 'resy_payment_id', 'tock_email']
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('accountinfo')
+
+class AccountInfoUpdateView(LoginRequiredMixin, UpdateView):
+    model = AccountInfo
+    template_name = 'accountinfo_form.html'
+
+
+    fields = ['display_name', 'resy_api_key', 'resy_auth_token', 'resy_payment_id', 'tock_email']
+
+    def get_success_url(self):
+        return reverse('accountinfo')
 
 # Run History
 class HistoryListView(LoginRequiredMixin, generic.ListView):

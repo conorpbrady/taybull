@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Account Info</h2>
+<a href="{% url 'accountinfo-create' %}">Create Account information</a>
+
+{% if accountinfo_list %}
+<table>
+  <thead>
+    <th>Display Name</th>
+    <th>Resy API Key</th>
+    <th>Resy Auth Token</th>
+    <th>Resy Payment ID</th>
+    <th>Tock Email</th>
+    <th></th>
+  </thead>
+  <tbody>
+    {% for accountinfo in accountinfo_list %}
+    <tr>
+      <td>{{ accountinfo.display_name }}</td>
+      <td>{{ accountinfo.resy_api_key }}</td>
+      <td>{{ accountinfo.resy_auth_token }}</td>
+      <td>{{ accountinfo.resy_payment_id }}</td>
+      <td>{{ accountinfo.tock_email }}</td>
+      <td><a href="{% url 'accountinfo-update' accountinfo.id %}">Update</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No account info</p>
+{% endif %}
+
+
+{% endblock %}

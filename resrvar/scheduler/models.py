@@ -52,10 +52,23 @@ class Venue(BaseModel):
     def __str__(self):
         return f'{self.display_name}'
 
+class AccountInfo(BaseModel):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    display_name = models.CharField(max_length=32, blank=True)
+    resy_api_key = models.CharField(max_length=128, blank=True)
+    resy_auth_token = models.CharField(max_length=512, blank=True)
+    resy_payment_id = models.CharField(max_length=32, blank=True)
+    tock_email = models.CharField(max_length=128, blank=True)
+
+    def __str__(self):
+        return f'{self.display_name}'
+
 class ReservationRequest(BaseModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     booked_venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     decision_preference = models.ForeignKey(DecisionPreference, on_delete=models.PROTECT, null=True)
+    account = models.ForeignKey(AccountInfo, on_delete=models.PROTECT, null=True)
+    party_size = models.IntegerField(default=2)
     status = models.CharField(max_length=32)
     confirmation = models.CharField(max_length=32, blank=True)
     active = models.BooleanField(default=True)
