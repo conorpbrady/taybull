@@ -73,6 +73,9 @@ class ReservationRequest(BaseModel):
     confirmation = models.CharField(max_length=32, blank=True)
     active = models.BooleanField(default=True)
 
+    def __str__(self):
+        return f'{self.booked_venue} for {self.party_size} | {self.decision_preference}'
+
 class RunHistory(BaseModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     request = models.ForeignKey(ReservationRequest, on_delete=models.CASCADE)

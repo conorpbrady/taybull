@@ -4,4 +4,27 @@
 
 <h2>Run History</h2>
 
+{% if history_list %}
+<table>
+  <thead>
+    <tr>
+      <th>Timestamp</th>
+      <th>Request</th>
+      <th>Log</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for history in history_list %}
+    <tr>
+      <td>{{ history.created }}</td>
+      <td>{{ history.request }}</td>
+      <td>{{ history.log }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+ </table>
+ {% else %}
+ <p>No history found</p>
+ {% endif %}
+
 {% endblock %}

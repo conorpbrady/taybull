@@ -158,6 +158,7 @@ class AccountInfoUpdateView(LoginRequiredMixin, UpdateView):
 class HistoryListView(LoginRequiredMixin, generic.ListView):
     ordering = '-created'
     template_name = 'history_list.html'
+    context_object_name = 'history_list'
 
     def get_queryset(self):
         return RunHistory.objects.filter(
