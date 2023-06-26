@@ -50,8 +50,7 @@ class RequestListView(LoginRequiredMixin, generic.ListView):
 
     def get_queryset(self):
         return ReservationRequest.objects.filter(
-                owner = self.request.user,
-                active = True)
+                owner = self.request.user)
 
 class RequestCreateView(LoginRequiredMixin, CreateView):
     model = ReservationRequest
@@ -156,10 +155,10 @@ class AccountInfoUpdateView(LoginRequiredMixin, UpdateView):
 
 # Run History
 class HistoryListView(LoginRequiredMixin, generic.ListView):
-    ordering = '-created'
+    ordering = ['created']
     template_name = 'history_list.html'
     context_object_name = 'history_list'
 
     def get_queryset(self):
         return RunHistory.objects.filter(
-                owner = self.request.user)
+                owner = self.request.user).order_by('-created')

@@ -1,6 +1,4 @@
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 
 <h2>Reservation Requests</h2>
 <a href="{% url 'request-create' %}">Create a request</a>
@@ -9,31 +7,31 @@
 <table>
   <thead>
     <tr>
-    <th>Venue</th>
-    <th>Decision Preference</th>
-    <th>Account</th>
-    <th>Party Size</th>
-    <th>Status</th>
-    <th>Confirmation</th>
-    <th></th>
+      <th>Active</th>
+      <th>Venue</th>
+      <th>Decision Preference</th>
+      <th>Account</th>
+      <th>Party Size</th>
+      <th>Status</th>
+      <th>Confirmation</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
     {% for request in request_list %}
     <tr>
-       <td>{{ request.booked_venue }}</td>
-       <td>{{ request.decision_preference }}</td>
-       <td>{{ request.account }}</td>
-       <td>{{ request.party_size }}</td>
-       <td>{{ request.status }}</td>
-       <td>{{ request.confirmation }}</td>
-       <td><a href="{% url 'request-update' request.id %}">Update</a></td>
+      <td>{{ request.active }}</td>
+      <td>{{ request.booked_venue }}</td>
+      <td>{{ request.decision_preference }}</td>
+      <td>{{ request.account }}</td>
+      <td>{{ request.party_size }}</td>
+      <td>{{ request.status }}</td>
+      <td>{{ request.confirmation }}</td>
+      <td><a href="{% url 'request-update' request.id %}">Update</a></td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
 {% else %}
 <p>No requests found</p>
-{% endif %}
-
-{% endblock %}
+{% endif %} {% endblock %}

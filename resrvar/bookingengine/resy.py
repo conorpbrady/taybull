@@ -1,6 +1,9 @@
 from bookingengine.resplatform import ResPlatform
+import logging
 import requests
 from datetime import datetime, timedelta
+
+logger = logging.getLogger('resy')
 
 class Resy(ResPlatform):
 
@@ -16,7 +19,7 @@ class Resy(ResPlatform):
                 }
 
         self.venue_id = kwargs.get('venue_id')
-        self.party_size = party_size
+        self.party_size = kwargs.get('party_size')
         if self.venue_id is None or self.party_size is None:
             raise TypeError
 
@@ -28,8 +31,6 @@ class Resy(ResPlatform):
         if auth_token is None or api_key is None:
             raise TypeError
 
-        api_key = ''
-        auth_token  = ''
         headers = {
             'authorization': 'ResyAPI api_key="{}"'.format(api_key),
             'x-resy-auth-token': auth_token,
@@ -78,16 +79,14 @@ class Resy(ResPlatform):
                 'end_date': end
                 }
         url = 'https://api.resy.com/4/venue/calendar'
-        if self.test_url is not None:
-            url = self.test_url
 
         r = self.session.get(url, params=params)
 
         # TODO: Some error handling for bad requests etc
 
-        self.log_request(r)
         available_days = []
         data = r.json()
+        logging.debug(f'{data}')
 
         for inventory_obj in data['scheduled']:
             logging.debug('Availability for %s on %s: %s', self.venue_id, inventory_obj['date'], inventory_obj['inventory']['reservation'])

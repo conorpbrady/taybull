@@ -1,4 +1,5 @@
 from bookingengine.resplatform import ResPlatform
+from datetime import datetime, timedelta
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -39,10 +40,10 @@ class Tock(ResPlatform):
         super().__init__(None)
 
     def authenticate(self, *args, **kwargs):
-        username = kwargs.get('username')
-        password = kwargs.get('password')
+        username = kwargs.get('tock_email')
+        auth_token = kwargs.get('tock_token')
 
-        if username is None or password is None:
+        if username is None or auth_token is None:
             raise TypeError
 
         url = 'https://www.exploretock.com/login'
@@ -50,7 +51,7 @@ class Tock(ResPlatform):
         email_input = self.wait.until(ec.presence_of_element_located((By.ID, 'email')))
         email_input.send_keys(username)
         pass_input = self.wait.until(ec.presence_of_element_located((By.ID, 'password')))
-        pass_input.send_keys(password)
+        pass_input.send_keys(auth_token)
         self.driver.find_element(By.XPATH, '//section/button').click()
         self.wait.until(ec.presence_of_element_located((By.XPATH, '//main/div/div/div[2]')))
 
@@ -78,7 +79,7 @@ class Tock(ResPlatform):
 
     def get_available_times(self):
         days = self.get_available_dates()
-        times = self.get_times_for_dates(days)
+        times = self.get_times_for_days(days)
         return times
 
     def get_available_dates(self):

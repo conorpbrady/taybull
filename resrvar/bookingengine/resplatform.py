@@ -1,4 +1,5 @@
-import logging
+import requests
+from datetime import datetime
 
 class ResPlatform:
 
@@ -10,13 +11,6 @@ class ResPlatform:
 
     def update_headers(self, headers):
         self.session.headers.update(headers)
-
-    def log_request(self, r):
-        logging.info('%s | %s', r.status_code, r.request.url)
-
-        logging.debug(r.request.headers)
-        logging.debug(r.request.body)
-        logging.debug(r.text)
 
 class OpenTable(ResPlatform):
     pass
