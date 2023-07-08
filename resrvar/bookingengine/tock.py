@@ -33,7 +33,7 @@ class Tock(ResPlatform):
         CHROME_PATH = 'chromedriver_mac64/chromedriver'
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        #options.add_argument('--headless=new')
+        options.add_argument('--headless=new')
         self.driver = webdriver.Chrome(executable_path=CHROME_PATH, options=options)
         self.wait = WebDriverWait(self.driver, 5)
 

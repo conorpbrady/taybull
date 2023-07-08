@@ -2,20 +2,26 @@ from datetime import datetime
 
 class DecisionEngine:
 
-    def __init__(self):
-        pass
+    def __init__(self, prefs):
+        self.ideal = prefs.ideal_time
+        self.weekday_prefs = [
+                prefs.sun_rank,
+                prefs.mon_rank,
+                prefs.tue_rank,
+                prefs.wed_rank,
+                prefs.thu_rank,
+                prefs.fri_rank,
+                prefs.sat_rank
+                ]
 
-    def select_preferred_time(self, times):
+    def select_time(self, times):
         ranked_times = self.rank_by_time(times)
         return ranked_times[0]
 
-    def rank_by_time(self, times, weekend_only = False):
-        # TODO: Filter on type, prefer indoor / dining room when possible
+    def rank_by_time(self, times):
 
-        # 20:00 is ideal dinner time, choose reservation based of closeness to that
         today = datetime.today()
 
-        ideal = '20:00:00'
         time_fmt = '%H:%M:%S'
         ranks = {}
         for time_slot in times:
@@ -23,7 +29,7 @@ class DecisionEngine:
             day_delta = time_slot - today
             score += day_delta.days * 1000
             #print(time, ideal)
-            time_delta = time_slot - datetime.strptime(ideal, time_fmt)
+            time_delta = time_slot - datetime.strptime(self.ideal, '%H:%M')
             minutes = time_delta.seconds / 60
             #print(minutes)
 
@@ -32,7 +38,14 @@ class DecisionEngine:
             if minutes > 1200:
                 minutes =  1440 - minutes - 5
 
+            # Add score for day of week preference
+
+            # 0 - Sunday -- 6 - Saturday
+            dow_index = int(time_slot.strftime('%w'))
+            dow_multiplier = self.weekday_prefs[dow_index]
+
             score += minutes
+            score += dow_multiplier
             ranks[time_slot] = score
 
         return [k for k, v in sorted(ranks.items(), key=lambda item: item[1])]

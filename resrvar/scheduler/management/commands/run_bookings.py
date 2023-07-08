@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from scheduler.models import *
 from bookingengine.resy import Resy
 from bookingengine.tock import Tock
+from bookingengine.decision_engine import DecisionEngine
 import traceback
 from dotenv import dotenv_values
 
@@ -23,7 +24,7 @@ class Command(BaseCommand):
                 account_info = AccountInfo.objects.filter(owner = request.owner)[0]
 
                 venue = Venue.objects.get(id = request.booked_venue_id)
-                decision_pref = DecisionPreference.objects.get(id = request.decision_preference_id)
+                decision_prefs = DecisionPreference.objects.get(id = request.decision_preference_id)
 
                 if venue.res_platform == 1: # Resy
                     options = {
@@ -59,9 +60,9 @@ class Command(BaseCommand):
 
                 log.append(f'found {found_times} times')
 
-                de = DecisionEngine(request.decision_pref)
+                de = DecisionEngine(decision_prefs)
                 selected_time_slot = de.select_time(available_times)
-                log.append('selecting time slot {selected_time_slot}')
+                log.append(f'selecting time slot {selected_time_slot}')
 
                 success, confirmation = booking_engine.book(selected_time_slot)
                 # Change Status based on result
