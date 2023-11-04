@@ -66,7 +66,7 @@ class Resy(ResPlatform):
         return self.time_slots
 
     def book(self, time_slot):
-        return True, "54321"
+        #return True, "54321"
         booking_token = get_booking_token(time_slot, self.available_time_slots[time_slot]['token'])
         confirmation = self.make_booking(booking_token)
         return confirmation
@@ -86,30 +86,30 @@ class Resy(ResPlatform):
 
         available_days = []
         data = r.json()
-        logging.debug(f'{data}')
-
-        for inventory_obj in data['scheduled']:
-            logging.debug('Availability for %s on %s: %s', self.venue_id, inventory_obj['date'], inventory_obj['inventory']['reservation'])
-            if inventory_obj['inventory']['reservation'] == 'available':
-                available_days.append(inventory_obj['date'])
+        # logging.self.log_request(r)
+        if r.status_code != 200:
+            return []
+        # TODO: See what happens when there are no time slots, or maybe this manifest since available_days
+        # would not populate a day w/o open time slots
+        for dateObj in data['scheduled']:
+            if dateObj['inventory']['reservation'] == 'available':
+                available_days.append(dateObj['date'])
         return available_days
 
     def find_bookings(self, day):
+
         params = {
-                'venue_id': self.venue_id,
-                'day': day,
-                'lat': 0,
-                'long': 0,
-                'party_size': self.party_size
-                }
-        r = self.session.get('https://api.resy.com/4/find', params=params)
-        self.log_request(r)
+            'day': day,
+            'party_size': self.party_size,
+            'venue_id': self.venue_id
+            }
+        url = 'https://api.resy.com/4/find'
 
+        r = requests.get(url, params = params)
         data = r.json()
-        # TODO: See what happens when there are no time slots, or maybe this manifest since available_days
-        # would not populate a day w/o open time slots
-
         time_slots = data['results']['venues'][0]['slots']
+
+        time_slots = []
 
         token_obj = {}
         for ts in time_slots:

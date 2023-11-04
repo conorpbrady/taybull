@@ -14,7 +14,7 @@ class Command(BaseCommand):
 
         open_requests = ReservationRequest.objects.filter(
                 active = True,
-                status__in = ['Open']
+                status__in = ['Open', 'Created']
                 )
 
         for request in open_requests:
@@ -34,8 +34,8 @@ class Command(BaseCommand):
 
                     # TODO: Find a way to import auth token / api key
                     auth_options = {
-                            'api_key': '',
-                            'auth_token':'',
+                            'api_key': request.account.resy_api_key,
+                            'auth_token': request.account.resy_auth_token
                             }
                     booking_engine = Resy(**options)
 
@@ -59,18 +59,18 @@ class Command(BaseCommand):
                 found_times = len(available_times)
 
                 log.append(f'found {found_times} times')
+                if found_times != 0:
+                    de = DecisionEngine(decision_prefs)
+                    selected_time_slot = de.select_time(available_times)
+                    log.append(f'selecting time slot {selected_time_slot}')
 
-                de = DecisionEngine(decision_prefs)
-                selected_time_slot = de.select_time(available_times)
-                log.append(f'selecting time slot {selected_time_slot}')
+                    success, confirmation = booking_engine.book(selected_time_slot)
+                    # Change Status based on result
+                    if success:
+                        request.status = 'Completed'
+                        request.confirmation = confirmation
 
-                success, confirmation = booking_engine.book(selected_time_slot)
-                # Change Status based on result
-                if success:
-                    request.status = 'Completed'
-                    request.confirmation = confirmation
-
-                request.save()
+                    request.save()
             except Exception as e:
                 log.append("Exception thrown when running request")
                 log.append(traceback.format_exc())
