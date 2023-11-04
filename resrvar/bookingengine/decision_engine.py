@@ -13,9 +13,12 @@ class DecisionEngine:
                 prefs.fri_rank,
                 prefs.sat_rank
                 ]
+        self.specific_date_flag = prefs.specific_date_flag
+        self.specific_date = prefs.specific_date
 
     def select_time(self, times):
         ranked_times = self.rank_by_time(times)
+
         return ranked_times[0]
 
     def rank_by_time(self, times):
@@ -24,9 +27,13 @@ class DecisionEngine:
 
         time_fmt = '%H:%M:%S'
         ranks = {}
-        for time_slot in times:
+        for time_slot in times.keys():
             score = 0
             time_slot_dt = datetime.strptime(time_slot, '%Y-%m-%d %H:%M:%S')
+            if self.specific_date_flag:
+                if time_slot_dt.date() != self.specific_date:
+                    continue
+
             day_delta = time_slot_dt - today
             score += day_delta.days * 1000
             #print(time, ideal)
@@ -49,5 +56,4 @@ class DecisionEngine:
             if dow_multiplier != 0:
                 score *= (10 - dow_multiplier)
                 ranks[time_slot] = score
-        print(ranks)
         return [k for k, v in sorted(ranks.items(), key=lambda item: item[1])]

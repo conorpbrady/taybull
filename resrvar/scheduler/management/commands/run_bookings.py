@@ -25,7 +25,6 @@ class Command(BaseCommand):
 
                 venue = Venue.objects.get(id = request.booked_venue_id)
                 decision_prefs = DecisionPreference.objects.get(id = request.decision_preference_id)
-
                 if venue.res_platform == 1: # Resy
                     options = {
                             'venue_id': venue.venue_id,
