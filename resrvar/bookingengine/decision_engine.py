@@ -46,7 +46,8 @@ class DecisionEngine:
             dow_multiplier = self.weekday_prefs[dow_index]
 
             score += minutes
-            score += dow_multiplier
-            ranks[time_slot] = score
-
+            if dow_multiplier != 0:
+                score *= (10 - dow_multiplier)
+                ranks[time_slot] = score
+        print(ranks)
         return [k for k, v in sorted(ranks.items(), key=lambda item: item[1])]

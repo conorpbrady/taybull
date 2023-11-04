@@ -67,7 +67,7 @@ class Command(BaseCommand):
                     success, confirmation = booking_engine.book(selected_time_slot)
                     # Change Status based on result
                     if success:
-                        request.status = 'Completed'
+                        #request.status = 'Completed'
                         request.confirmation = confirmation
 
                     request.save()
