@@ -26,10 +26,11 @@ class DecisionEngine:
         ranks = {}
         for time_slot in times:
             score = 0
-            day_delta = time_slot - today
+            time_slot_dt = datetime.strptime(time_slot, '%Y-%m-%d %H:%M:%S')
+            day_delta = time_slot_dt - today
             score += day_delta.days * 1000
             #print(time, ideal)
-            time_delta = time_slot - datetime.strptime(self.ideal, '%H:%M')
+            time_delta = time_slot_dt - datetime.strptime(self.ideal, '%H:%M')
             minutes = time_delta.seconds / 60
             #print(minutes)
 
@@ -41,7 +42,7 @@ class DecisionEngine:
             # Add score for day of week preference
 
             # 0 - Sunday -- 6 - Saturday
-            dow_index = int(time_slot.strftime('%w'))
+            dow_index = int(time_slot_dt.strftime('%w'))
             dow_multiplier = self.weekday_prefs[dow_index]
 
             score += minutes

@@ -41,7 +41,7 @@ class Resy(ResPlatform):
     def get_available_times(self):
         max_weeks = 8
         current_day = datetime.today()
-
+        all_days = []
         for i in range(max_weeks):
             num_weeks = timedelta(days=7*i)
             start = (current_day + num_weeks).strftime(self.DATE_FMT)
@@ -49,24 +49,24 @@ class Resy(ResPlatform):
             days = self.get_available_days(start, end)
             if len(days) > 0:
                 logging.info('Found available days: %s', ','.join(days))
+                all_days += days
             else:
                 logging.info('No available days between %s and %s', start, end)
 
-        if len(days) == 0:
+        if len(all_days) == 0:
             logging.info("No available days")
             return {}
 
         self.time_slots = {}
-        for day in days:
+        for day in all_days:
             self.time_slots.update(self.find_bookings(day))
-
-        if len(time_slots) == 0:
+        if len(self.time_slots) == 0:
             logging.info('No available times')
 
         return self.time_slots
 
     def book(self, time_slot):
-        #return True, "54321"
+        return True, "54321"
         booking_token = get_booking_token(time_slot, self.available_time_slots[time_slot]['token'])
         confirmation = self.make_booking(booking_token)
         return confirmation
@@ -99,17 +99,18 @@ class Resy(ResPlatform):
     def find_bookings(self, day):
 
         params = {
+            'lat': '0',
+            'long': '0',
             'day': day,
             'party_size': self.party_size,
             'venue_id': self.venue_id
             }
         url = 'https://api.resy.com/4/find'
 
-        r = requests.get(url, params = params)
+        r = self.session.get(url, params = params)
+        # TODO: Handle Bad Requests
         data = r.json()
         time_slots = data['results']['venues'][0]['slots']
-
-        time_slots = []
 
         token_obj = {}
         for ts in time_slots:
@@ -120,7 +121,6 @@ class Resy(ResPlatform):
                     'type': dining_type,
                     'token': token
                     }
-
         return token_obj
 
 
