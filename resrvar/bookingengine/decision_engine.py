@@ -2,7 +2,7 @@ from datetime import datetime
 
 class DecisionEngine:
 
-    def __init__(self, prefs):
+    def __init__(self, prefs, log):
         self.ideal = prefs.ideal_time
         self.weekday_prefs = [
                 prefs.sun_rank,
@@ -15,16 +15,13 @@ class DecisionEngine:
                 ]
         self.specific_date_flag = prefs.specific_date_flag
         self.specific_date = prefs.specific_date
-
-    def select_time(self, times):
-        ranked_times = self.rank_by_time(times)
-
-        return ranked_times[0]
+        self.log = log
 
     def rank_by_time(self, times):
 
         today = datetime.today()
-
+        if self.specific_date_flag:
+            self.log.append(f'specific date {self.specific_date.strftime("%Y-%m-%d")} set')
         time_fmt = '%H:%M:%S'
         ranks = {}
         for time_slot in times.keys():
@@ -56,4 +53,5 @@ class DecisionEngine:
             if dow_multiplier != 0:
                 score *= (10 - dow_multiplier)
                 ranks[time_slot] = score
+        self.log.append(f'found {len(ranks)} times after preferences')
         return [k for k, v in sorted(ranks.items(), key=lambda item: item[1])]

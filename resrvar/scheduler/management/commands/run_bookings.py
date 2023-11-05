@@ -57,18 +57,21 @@ class Command(BaseCommand):
                 available_times = booking_engine.get_available_times()
                 found_times = len(available_times)
 
-                log.append(f'found {found_times} times')
+                log.append(f'found {found_times} total times')
                 if found_times != 0:
-                    de = DecisionEngine(decision_prefs)
-                    selected_time_slot = de.select_time(available_times)
-                    log.append(f'selecting time slot {selected_time_slot}')
+                    de = DecisionEngine(decision_prefs, log)
+                    de_times = de.rank_by_time(available_times)
+                    if len(de_times) > 0:
+                        selected_time_slot = de_times[0]
+                        log.append(f'selecting time slot {selected_time_slot}')
 
-                    success, confirmation = booking_engine.book(selected_time_slot)
-                    # Change Status based on result
-                    if success:
-                        #request.status = 'Completed'
-                        request.confirmation = confirmation
-
+                        success, confirmation = booking_engine.book(selected_time_slot)
+                        # Change Status based on result
+                        if success:
+                            #request.status = 'Completed'
+                            request.confirmation = confirmation
+                    else:
+                        log.append('No times to select')
                     request.save()
             except Exception as e:
                 log.append("Exception thrown when running request")
