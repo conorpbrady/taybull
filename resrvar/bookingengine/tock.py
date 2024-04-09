@@ -7,7 +7,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
-from selenium.webdriver.chrome.options import Options
 
 class Tock(ResPlatform):
 
@@ -30,11 +29,12 @@ class Tock(ResPlatform):
 
 
         # TODO: Make this platform agnostic
-        CHROME_PATH = 'chromedriver_mac64/chromedriver'
+        CHROME_PATH = 'bookingengine/chromedriver_mac64/chromedriver'
+        service = webdriver.ChromeService(executable_path=CHROME_PATH)
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
         options.add_argument('--headless=new')
-        self.driver = webdriver.Chrome(executable_path=CHROME_PATH, options=options)
+        self.driver = webdriver.Chrome(service=service, options=options)
         self.wait = WebDriverWait(self.driver, 5)
 
         super().__init__(None)
