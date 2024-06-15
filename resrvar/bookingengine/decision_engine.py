@@ -22,19 +22,18 @@ class DecisionEngine:
         today = datetime.today()
         if self.specific_date_flag:
             self.log.append(f'specific date {self.specific_date.strftime("%Y-%m-%d")} set')
-        time_fmt = '%H:%M:%S'
         ranks = {}
-        for time_slot in times.keys():
+        for time_slot in times:
             score = 0
-            time_slot_dt = datetime.strptime(time_slot, '%Y-%m-%d %H:%M:%S')
+
             if self.specific_date_flag:
-                if time_slot_dt.date() != self.specific_date:
+                if time_slot.date() != self.specific_date:
                     continue
 
-            day_delta = time_slot_dt - today
+            day_delta = time_slot - today
             score += day_delta.days * 1000
             #print(time, ideal)
-            time_delta = time_slot_dt - datetime.strptime(self.ideal, '%H:%M')
+            time_delta = time_slot - datetime.strptime(self.ideal, '%H:%M')
             minutes = time_delta.seconds / 60
             #print(minutes)
 
@@ -46,7 +45,7 @@ class DecisionEngine:
             # Add score for day of week preference
 
             # 0 - Sunday -- 6 - Saturday
-            dow_index = int(time_slot_dt.strftime('%w'))
+            dow_index = int(time_slot.strftime('%w'))
             dow_multiplier = self.weekday_prefs[dow_index]
 
             score += minutes
