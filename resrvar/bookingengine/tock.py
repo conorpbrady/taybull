@@ -33,7 +33,7 @@ class Tock(ResPlatform):
         service = webdriver.ChromeService(executable_path=CHROME_PATH)
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        options.add_argument('--headless=new')
+        #options.add_argument('--headless=new')
         self.driver = webdriver.Chrome(service=service, options=options)
         self.wait = WebDriverWait(self.driver, 5)
 
@@ -114,14 +114,16 @@ class Tock(ResPlatform):
             self.driver.find_element(By.XPATH, date_xpath).click()
             # Wait until modal finishes loading
             modal_xpath = '//div[@class="SearchModalExperience is-animating"]'
-            self.wait.until(ec.presence_of_element_located((By.XPATH, times_xpath + modal_xpath)))
+            times_element = self.wait.until(ec.presence_of_element_located((By.XPATH, times_xpath + modal_xpath)))
             # Get available time slots
-            available_elements = times_container.find_elements(By.XPATH, './/div/div/button')
+            available_elements = times_element.find_elements(By.XPATH, './/div/div[contains(@class, "MuiCard-root")]')
             for element in available_elements:
-                time_str = element.find_element(By.XPATH, './/span/span/span').get_attribute('innerText')
-                time_slot_str = '{} {}'.format(day, time_str)
-                time_slot = datetime.strptime(time_slot_str, self.FMT)
-                available_times.append(time_slot)
+                button_text = element.find_element(By.XPATH, './/div/div[@class="MuiCardHeader-action"]/button/span').get_attribute('innerText')
+                if button_text.lower() == 'book':
+                    time_str = element.find_element(By.XPATH, './/div/div[@class="MuiCardHeader-content"]/span/section/span/span/span').get_attribute('innerText')
+                    time_slot_str = '{} {}'.format(day, time_str)
+                    time_slot = datetime.strptime(time_slot_str, self.FMT)
+                    available_times.append(time_slot)
 
         return available_times
 
