@@ -33,7 +33,14 @@ class Tock(ResPlatform):
         service = webdriver.ChromeService(executable_path=CHROME_PATH)
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        #options.add_argument('--headless=new')
+
+        # Make selenium headless, set window size to 1920x1080 so elements will load
+        # Set user agent to get around cloudflare verification
+        options.add_argument('--headless=new')
+        options.add_argument('--window-size=1920,1080')
+        user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+        options.add_argument(f'--user-agent={user_agent}')
+
         self.driver = webdriver.Chrome(service=service, options=options)
         self.wait = WebDriverWait(self.driver, 5)
 
@@ -48,6 +55,7 @@ class Tock(ResPlatform):
 
         url = 'https://www.exploretock.com/login'
         self.driver.get(url)
+        self.driver.get_screenshot_as_file("screenshot.png")
         email_input = self.wait.until(ec.presence_of_element_located((By.ID, 'email')))
         email_input.send_keys(username)
         pass_input = self.wait.until(ec.presence_of_element_located((By.ID, 'password')))
