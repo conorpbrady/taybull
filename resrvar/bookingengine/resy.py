@@ -8,9 +8,7 @@ logger = logging.getLogger('resy')
 class Resy(ResPlatform):
 
     DATE_FMT = '%Y-%m-%d'
-
-    def __init__(self, *args, **kwargs):
-        headers = {
+    HEADERS = {
                 'accept-encoding': 'gzip, deflate, br',
                 'origin': 'https://widgets.resy.com',
                 'referer': 'https://widgets.resy.com/',
@@ -18,12 +16,14 @@ class Resy(ResPlatform):
                 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36'
                 }
 
-        self.venue_id = kwargs.get('venue_id')
+
+    def __init__(self, *args, **kwargs):
+                self.venue_id = kwargs.get('venue_id')
         self.party_size = kwargs.get('party_size')
         if self.venue_id is None or self.party_size is None:
             raise TypeError
 
-        super().__init__(headers)
+        super().__init__(HEADERS)
 
     def authenticate(self, *args, **kwargs):
         auth_token = kwargs.get('auth_token')
@@ -37,6 +37,19 @@ class Resy(ResPlatform):
             'x-resy-universal-auth': auth_token
             }
         self.update_headers(headers)
+        r = self.session.get('https://api.resy.com/3/user/lists/venue_ids')
+        if r.status_code == 419 or r.status_code == 401:
+            auth_token = self.login(kwargs.get('resy_email'), kwargs.get('resy_password'))
+        return auth_token
+
+    def login(self, email, password):
+
+        login_url = 'https://api.resy.com/3/auth/password'
+        data = {'email': email, 'password': password}
+        r = request.post(login_url, data, headers=HEADERS)
+        response_data = r.json()
+        token = response_data['token']
+        return token
 
     def get_available_times(self):
         max_weeks = 8

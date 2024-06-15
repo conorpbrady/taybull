@@ -25,6 +25,9 @@ class Command(BaseCommand):
 
                 venue = Venue.objects.get(id = request.booked_venue_id)
                 decision_prefs = DecisionPreference.objects.get(id = request.decision_preference_id)
+                auth_options = {
+                        **dotenv_values('.accounts.env')
+                        }
                 if venue.res_platform == 1: # Resy
                     options = {
                             'venue_id': venue.venue_id,
@@ -32,10 +35,10 @@ class Command(BaseCommand):
                             }
 
                     # TODO: Find a way to import auth token / api key
-                    auth_options = {
+                    auth_options.update({
                             'api_key': request.account.resy_api_key,
                             'auth_token': request.account.resy_auth_token
-                            }
+                            })
                     booking_engine = Resy(**options)
 
                 elif venue.res_platform == 0: # Tock:
@@ -45,15 +48,17 @@ class Command(BaseCommand):
                             'res_type': venue.reservation_type,
                             'party_size': request.party_size
                             }
-                    # TODO: Come up with a way to store credentials better
-                    auth_options = {
-                            **dotenv_values('.tock.env')
-                            }
+
                     booking_engine = Tock(**options)
                 else:
                     log.append('Res Platform not implemented')
 
-                booking_engine.authenticate(**auth_options)
+                success, result = booking_engine.authenticate(**auth_options)
+                if venue.res_platform == 1: # Resy
+                    if result != request.account.resy_auth_token:
+                        account_info.resy_auth_token = result
+                        account_info.save()
+
                 available_times = booking_engine.get_available_times()
                 found_times = len(available_times)
 

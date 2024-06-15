@@ -9,6 +9,9 @@ class ResPlatform:
             self.session.headers.update(headers)
         self.debug = debug
 
+    def set_headers(self, headers):
+        self.session.headers = headers
+
     def update_headers(self, headers):
         self.session.headers.update(headers)
 
