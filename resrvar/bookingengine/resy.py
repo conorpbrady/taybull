@@ -63,7 +63,7 @@ class Resy(ResPlatform):
         if len(self.time_slots) == 0:
             logging.info('No available times')
 
-        time_slot_strs = [datetime.strftime(ts, '%Y-%m-%d %H:%M:%S') for ts in time_slot.keys()]
+        time_slot_strs = [datetime.strptime(ts, '%Y-%m-%d %H:%M:%S') for ts in self.time_slots.keys()]
         return time_slot_strs
 
     def book(self, time_slot):
