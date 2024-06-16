@@ -18,12 +18,12 @@ class Resy(ResPlatform):
 
 
     def __init__(self, *args, **kwargs):
-                self.venue_id = kwargs.get('venue_id')
+        self.venue_id = kwargs.get('venue_id')
         self.party_size = kwargs.get('party_size')
         if self.venue_id is None or self.party_size is None:
             raise TypeError
 
-        super().__init__(HEADERS)
+        super().__init__(self.HEADERS)
 
     def authenticate(self, *args, **kwargs):
         auth_token = kwargs.get('auth_token')
@@ -38,6 +38,7 @@ class Resy(ResPlatform):
             }
         self.update_headers(headers)
         r = self.session.get('https://api.resy.com/3/user/lists/venue_ids')
+        print(f'checking if auth_token is valid {r.status_code}')
         if r.status_code == 419 or r.status_code == 401:
             auth_token = self.login(kwargs.get('resy_email'), kwargs.get('resy_password'))
         return auth_token
@@ -46,8 +47,9 @@ class Resy(ResPlatform):
 
         login_url = 'https://api.resy.com/3/auth/password'
         data = {'email': email, 'password': password}
-        r = request.post(login_url, data, headers=HEADERS)
+        r = request.post(login_url, data, headers=self.HEADERS)
         response_data = r.json()
+        print(f'attempting to login {r.status_code}')
         token = response_data['token']
         return token
 

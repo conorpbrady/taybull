@@ -53,7 +53,7 @@ class Command(BaseCommand):
                 else:
                     log.append('Res Platform not implemented')
 
-                success, result = booking_engine.authenticate(**auth_options)
+                result = booking_engine.authenticate(**auth_options)
                 if venue.res_platform == 1: # Resy
                     if result != request.account.resy_auth_token:
                         account_info.resy_auth_token = result
