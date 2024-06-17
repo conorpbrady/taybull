@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Scheduling Preference</h2>
+<p><a href="{% url 'scheduling-create' %}">Add new scheduling preference</a></p>
+{% if scheduling_list %}
+<table>
+  <thead>
+    <th>Name</th>
+    <th>Frequency</th>
+    <th>Specific Time</th>
+    <th>Mon</th>
+    <th>Tue</th>
+    <th>Wed</th>
+    <th>Thu</th>
+    <th>Fri</th>
+    <th>Sat</th>
+    <th>Sun</th>
+    <th></th>
+  </thead>
+  <tbody>
+    {% for schedule in scheduling_list %}
+    <tr>
+      <td>{{ schedule.display_name }}</td>
+      <td>{{ schedule.frequency }}</td>
+      <td>{{ schedule.specific_time }}</td>
+      <td>{{ schedule.mon_run }}</td>
+      <td>{{ schedule.tue_run }}</td>
+      <td>{{ schedule.wed_run }}</td>
+      <td>{{ schedule.thu_run }}</td>
+      <td>{{ schedule.fri_run }}</td>
+      <td>{{ schedule.sat_run }}</td>
+      <td>{{ schedule.sun_run }}</td>
+      <td><a href="{% url 'scheduling-update' schedule.id %}">Update</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No schedules found</p>
+{% endif %}
+
+{% endblock %}

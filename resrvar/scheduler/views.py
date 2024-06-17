@@ -55,7 +55,8 @@ class RequestListView(LoginRequiredMixin, generic.ListView):
 class RequestCreateView(LoginRequiredMixin, CreateView):
     model = ReservationRequest
     template_name = 'request_form.html'
-    fields = ['booked_venue', 'decision_preference', 'account', 'party_size', 'active']
+    fields = ['booked_venue', 'decision_preference', 'scheduling_preference',
+              'account', 'party_size', 'active']
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
@@ -66,6 +67,7 @@ class RequestCreateView(LoginRequiredMixin, CreateView):
         modelform = super().get_form_class()
         modelform.base_fields['booked_venue'].limit_choices_to={'owner': self.request.user}
         modelform.base_fields['decision_preference'].limit_choices_to={'owner': self.request.user}
+        modelform.base_fields['scheduling_preference'].limit_choices_to={'owner': self.request.user}
         modelform.base_fields['account'].limit_choices_to={'owner': self.request.user}
         return modelform
 
@@ -75,12 +77,14 @@ class RequestCreateView(LoginRequiredMixin, CreateView):
 class RequestUpdateView(LoginRequiredMixin, UpdateView):
     model = ReservationRequest
     template_name = 'request_form.html'
-    fields = ['booked_venue', 'decision_preference', 'account', 'party_size', 'active']
+    fields = ['booked_venue', 'decision_preference', 'scheduling_preference',
+              'account', 'party_size', 'active']
 
     def get_form_class(self):
         modelform = super().get_form_class()
         modelform.base_fields['booked_venue'].limit_choices_to={'owner': self.request.user}
         modelform.base_fields['decision_preference'].limit_choices_to={'owner': self.request.user}
+        modelform.base_fields['scheduling_preference'].limit_choices_to={'owner': self.request.user}
         return modelform
 
     def get_success_url(self):
@@ -121,7 +125,39 @@ class PreferenceUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse('preferences')
 
+# Scheduling Preferences
+class SchedulingView(LoginRequiredMixin, generic.ListView):
+    ordering = '-created'
+    template_name = 'scheduling_list.html'
+    context_object_name = 'scheduling_list'
 
+    def get_queryset(self):
+        return SchedulingPreference.objects.filter(
+                owner = self.request.user)
+
+class SchedulingCreateView(LoginRequiredMixin, CreateView):
+    model = SchedulingPreference
+    template_name = 'scheduling_form.html'
+    fields = ['display_name', 'frequency', 'specific_time', 'mon_run', 'tue_run', 'wed_run',
+              'thu_run', 'fri_run', 'sat_run', 'sun_run']
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+            return reverse('scheduling')
+
+class SchedulingUpdateView(LoginRequiredMixin, UpdateView):
+    model = SchedulingPreference
+    template_name = 'scheduling_form.html'
+    fields = ['display_name', 'frequency', 'specific_time', 'mon_run', 'tue_run', 'wed_run',
+              'thu_run', 'fri_run', 'sat_run', 'sun_run']
+
+
+    def get_success_url(self):
+            return reverse('scheduling')
+# Account Info
 class AccountInfoListView(LoginRequiredMixin, generic.ListView):
     ordering = '-created'
     template_name = 'accountinfo_list.html'

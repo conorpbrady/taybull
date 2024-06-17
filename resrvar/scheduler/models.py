@@ -63,10 +63,32 @@ class AccountInfo(BaseModel):
     def __str__(self):
         return f'{self.display_name}'
 
+class SchedulingPreference(BaseModel):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    display_name = models.CharField(max_length=32, blank=True)
+
+    class Frequency(models.IntegerChoices):
+            HOURLY = 0
+            DAILY = 1
+
+    frequency = models.IntegerField(choices=Frequency.choices)
+    mon_run = models.BooleanField(default=True)
+    tue_run = models.BooleanField(default=True)
+    wed_run = models.BooleanField(default=True)
+    thu_run = models.BooleanField(default=True)
+    fri_run = models.BooleanField(default=True)
+    sat_run = models.BooleanField(default=True)
+    sun_run = models.BooleanField(default=True)
+    specific_time = models.TimeField()
+
+    def __str__(self):
+            return f'{self.display_name}'
+
 class ReservationRequest(BaseModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     booked_venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     decision_preference = models.ForeignKey(DecisionPreference, on_delete=models.PROTECT, null=True)
+    scheduling_preference = models.ForeignKey(SchedulingPreference, on_delete=models.PROTECT, null=True)
     account = models.ForeignKey(AccountInfo, on_delete=models.PROTECT, null=True)
     party_size = models.IntegerField(default=2)
     status = models.CharField(max_length=32)
