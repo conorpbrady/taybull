@@ -17,7 +17,10 @@
     <th>Fri</th>
     <th>Sat</th>
     <th>Sun</th>
+    <th>Start Time</th>
+    <th>End Time</th>
     <th></th>
+
   </thead>
   <tbody>
     {% for schedule in scheduling_list %}
@@ -32,6 +35,8 @@
       <td>{{ schedule.fri_run }}</td>
       <td>{{ schedule.sat_run }}</td>
       <td>{{ schedule.sun_run }}</td>
+      <td>{{ schedule.start_time }}</td>
+      <td>{{ schedule.end_time }}</td>
       <td><a href="{% url 'scheduling-update' schedule.id %}">Update</a></td>
     </tr>
     {% endfor %}

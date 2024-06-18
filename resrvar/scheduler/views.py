@@ -139,7 +139,7 @@ class SchedulingCreateView(LoginRequiredMixin, CreateView):
     model = SchedulingPreference
     template_name = 'scheduling_form.html'
     fields = ['display_name', 'frequency', 'specific_time', 'mon_run', 'tue_run', 'wed_run',
-              'thu_run', 'fri_run', 'sat_run', 'sun_run']
+              'thu_run', 'fri_run', 'sat_run', 'sun_run', 'start_time', 'end_time']
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
@@ -152,7 +152,7 @@ class SchedulingUpdateView(LoginRequiredMixin, UpdateView):
     model = SchedulingPreference
     template_name = 'scheduling_form.html'
     fields = ['display_name', 'frequency', 'specific_time', 'mon_run', 'tue_run', 'wed_run',
-              'thu_run', 'fri_run', 'sat_run', 'sun_run']
+              'thu_run', 'fri_run', 'sat_run', 'sun_run', 'start_time', 'end_time']
 
 
     def get_success_url(self):

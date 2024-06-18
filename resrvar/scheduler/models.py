@@ -80,6 +80,8 @@ class SchedulingPreference(BaseModel):
     sat_run = models.BooleanField(default=True)
     sun_run = models.BooleanField(default=True)
     specific_time = models.TimeField()
+    start_time = models.TimeField(null=True)
+    end_time = models.TimeField(null=True)
 
     def __str__(self):
             return f'{self.display_name}'
