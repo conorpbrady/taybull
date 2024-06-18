@@ -95,6 +95,7 @@ class ReservationRequest(BaseModel):
     party_size = models.IntegerField(default=2)
     status = models.CharField(max_length=32)
     confirmation = models.CharField(max_length=32, blank=True)
+    last_run = models.DateTimeField(null=True)
     active = models.BooleanField(default=True)
 
     def __str__(self):
