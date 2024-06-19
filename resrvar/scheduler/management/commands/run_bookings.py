@@ -24,7 +24,9 @@ class Command(BaseCommand):
             try:
                 log.append(f'{request.booked_venue} for {request.party_size} | {request.decision_preference} // ')
                 # Skip if request is not scheduled to run
-                if not self.is_scheduled(request.last_run, request.scheduling_preference):
+                on_schedule, schedule_log = self.is_scheduled(request.last_run, request.scheduling_preference)
+                log += schedule_log
+                if not on_schedule:
                     log.append('Not scheduled to run - skipping request')
                     continue
 
@@ -95,17 +97,19 @@ class Command(BaseCommand):
 
 
     def is_scheduled(self, last_run_utc, schedule):
+        log = []
         current_utc = datetime.now()
         local_time = datetime.now(tz=timezone('US/Eastern'))
 
         if schedule.frequency == 0: # Hourly
-            pass
             # Wait at least 30 min since last run
             try:
                 since_last_run = current_utc - last_run_utc
                 min_since_last_run = since_last_run.seconds / 60
                 if min_since_last_run < 30:
+                    log.append('Has run in the past 30 min')
                     return False
+
             except TypeError:
                 pass
             # Make sure current time is inside start - end time range
@@ -113,16 +117,20 @@ class Command(BaseCommand):
                                        second=schedule.start_time.second)
             end = local_time.replace(hour=schedule.end_time.hour, minute=schedule.end_time.minute,
                                       second=schedule.end_time.second)
-            if local_time < start: # Has not passed start time
+            if local_time < start: # Has not past start time
+                log.append('Earlier thani start time')
                 return False
 
-            if local_time > end: # Has passed end time
+            if local_time > end: # Has past end time
+                log.append('Later than end time')
                 return False
 
             # Give 1/30 chance of running
 
             r = random.randint(1, 30)
+            log.append(f'random {r]')
             if r != 1:
+                log.append('unlucky roll')
                 return False
 
             return True
@@ -134,12 +142,14 @@ class Command(BaseCommand):
             # If schedule to run on day:
             dow = local_time.strftime('%a')
             if not day_dict[dow]:
+                log.append('Not the right day of week')
                 return False
 
             delta = schedule.specific_time - local_time
 
             # Run if within a minute of specified time
             if delta.seconds < -60 or delta.seconds > 60:
+                log.append('Not specified time')
                 return False
 
             return True
