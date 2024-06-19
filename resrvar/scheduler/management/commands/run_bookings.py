@@ -6,6 +6,7 @@ from bookingengine.decision_engine import DecisionEngine
 import traceback
 from dotenv import dotenv_values
 from pytz import timezone
+from django.utils import timezone as django_tz
 import random
 
 class Command(BaseCommand):
@@ -94,24 +95,23 @@ class Command(BaseCommand):
                 # Create record in RunHistory with Status
                 history_object = RunHistory(owner = request.owner, request=request, log=' | '.join(log))
                 history_object.save()
+                request.last_run = django_tz.now()
+                request.save()
 
 
     def is_scheduled(self, last_run_utc, schedule):
         log = []
-        current_utc = datetime.now()
+        current_utc = datetime.now(tz=timezone('UTC'))
         local_time = datetime.now(tz=timezone('US/Eastern'))
 
         if schedule.frequency == 0: # Hourly
             # Wait at least 30 min since last run
-            try:
-                since_last_run = current_utc - last_run_utc
-                min_since_last_run = since_last_run.seconds / 60
-                if min_since_last_run < 30:
-                    log.append('Has run in the past 30 min')
-                    return False
+            since_last_run = current_utc - last_run_utc
+            min_since_last_run = since_last_run.seconds / 60
+            if min_since_last_run < 30:
+                log.append('Has run in the past 30 min')
+                return False, log
 
-            except TypeError:
-                pass
             # Make sure current time is inside start - end time range
             start = local_time.replace(hour=schedule.start_time.hour, minute=schedule.start_time.minute,
                                        second=schedule.start_time.second)
@@ -119,21 +119,21 @@ class Command(BaseCommand):
                                       second=schedule.end_time.second)
             if local_time < start: # Has not past start time
                 log.append('Earlier thani start time')
-                return False
+                return False, log
 
             if local_time > end: # Has past end time
                 log.append('Later than end time')
-                return False
+                return False, log
 
             # Give 1/30 chance of running
 
             r = random.randint(1, 30)
-            log.append(f'random {r]')
+            log.append(f'random {r}')
             if r != 1:
                 log.append('unlucky roll')
-                return False
+                return False, log
 
-            return True
+            return True, log
 
         elif schedule.frequency == 1: # Daily
             day_dict = {'Mon': schedule.mon_run, 'Tue': schedule.tue_run, 'Wed': schedule.wed_run,
@@ -143,13 +143,13 @@ class Command(BaseCommand):
             dow = local_time.strftime('%a')
             if not day_dict[dow]:
                 log.append('Not the right day of week')
-                return False
+                return False, log
 
-            delta = schedule.specific_time - local_time
+            delta = local_time.replace(hour=schedule.specific_time.hour, minute=schedule.specific_time.minute, second=schedule.specific_time.second) - local_time
 
             # Run if within a minute of specified time
             if delta.seconds < -60 or delta.seconds > 60:
                 log.append('Not specified time')
-                return False
+                return False, log
 
-            return True
+            return True, log
