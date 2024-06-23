@@ -87,6 +87,8 @@ class Command(BaseCommand):
                             request.confirmation = confirmation
                     else:
                         log.append('No times to select')
+
+                    request.last_run = django_tz.now()
                     request.save()
             except Exception as e:
                 log.append("Exception thrown when running request")
@@ -95,8 +97,6 @@ class Command(BaseCommand):
                 # Create record in RunHistory with Status
                 history_object = RunHistory(owner = request.owner, request=request, log=' | '.join(log))
                 history_object.save()
-                request.last_run = django_tz.now()
-                request.save()
 
 
     def is_scheduled(self, last_run_utc, schedule):
