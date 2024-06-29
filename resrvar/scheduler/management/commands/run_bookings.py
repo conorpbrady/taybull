@@ -12,6 +12,8 @@ import random
 class Command(BaseCommand):
     help = "Run booking engine"
 
+    def add_arguments(self, parser):
+        parser.add_argument('--force', action='store_true', help='Skip random checks to always run')
 
     def handle(self, *args, **options):
 
@@ -25,7 +27,11 @@ class Command(BaseCommand):
             try:
                 log.append(f'{request.booked_venue} for {request.party_size} | {request.decision_preference} // ')
                 # Skip if request is not scheduled to run
-                on_schedule, schedule_log = self.is_scheduled(request.last_run, request.scheduling_preference)
+                if options['force']:
+                    on_schedule = True
+                    schedule_log = ['Force run']
+                else:
+                    on_schedule, schedule_log = self.is_scheduled(request.last_run, request.scheduling_preference)
                 log += schedule_log
                 if not on_schedule:
                     log.append('Not scheduled to run - skipping request')
@@ -41,7 +47,8 @@ class Command(BaseCommand):
                 if venue.res_platform == 1: # Resy
                     options = {
                             'venue_id': venue.venue_id,
-                            'party_size': request.party_size
+                            'party_size': request.party_size,
+                            'payment_id': account_info.resy_payment_id
                             }
 
                     # TODO: Find a way to import auth token / api key
@@ -148,7 +155,8 @@ class Command(BaseCommand):
             delta = local_time.replace(hour=schedule.specific_time.hour, minute=schedule.specific_time.minute, second=schedule.specific_time.second) - local_time
 
             # Run if within a minute of specified time
-            if delta.seconds < -60 or delta.seconds > 60:
+            print(delta.seconds)
+            if not (delta.seconds < 61 or delta.seconds > 86339):
                 log.append('Not specified time')
                 return False, log
 

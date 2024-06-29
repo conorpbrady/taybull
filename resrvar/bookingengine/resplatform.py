@@ -15,5 +15,8 @@ class ResPlatform:
     def update_headers(self, headers):
         self.session.headers.update(headers)
 
+    def get_headers(self):
+        return self.session.headers
+
 class OpenTable(ResPlatform):
     pass
