@@ -204,10 +204,13 @@ class Resy(ResPlatform):
         r = requests.post(url, headers=self.get_headers(), data=payload)
 
         # logging.info(f'{r.status_code} || {r.url} || {r.text} || {r.request.headers} || {payload}')
+        # TODO: Check status code here - 201 Created indicates successful creation
+        # 412 Precondition Failed could be already created
+        # Raise exception on 500/400/401 etc
         try:
             data = r.json()
 
             # TODO: Log resy token and reservation DI
-            return data
+            return data['reservation_id']
         except:
             pass
