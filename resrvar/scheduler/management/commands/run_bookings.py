@@ -116,7 +116,7 @@ class Command(BaseCommand):
                 # Create record in RunHistory with Status
                 history_object = RunHistory(owner = request.owner, request=request, log=' | '.join(log))
                 history_object.save()
-
+                logger.info("Completed run")
 
     def is_scheduled(self, last_run_utc, schedule):
         log = []
