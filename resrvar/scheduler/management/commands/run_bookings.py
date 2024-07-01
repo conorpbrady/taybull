@@ -9,6 +9,13 @@ from pytz import timezone
 from django.utils import timezone as django_tz
 import random
 
+import logging
+
+logging.basicConfig(format="%(levelname)s | %(asctime)s | %{message)s",
+                    filename='log.log',
+                    datefmt="%Y-%m-%dT%H:%M:%SZ")
+
+logger = logging.getLogger('scheduler')
 class Command(BaseCommand):
     help = "Run booking engine"
 
@@ -17,13 +24,17 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+        logger.info("Starting Check")
         open_requests = ReservationRequest.objects.filter(
                 active = True,
                 status__in = ['Open', 'Created']
                 )
-
+        logger.info(f'Found {len(open_requests)} open requests')
         for request in open_requests:
             log = []
+            logging.info(f'{request.booked_venue} for {request.party_size} ' \
+            '| {request.decision_preference} // {request.scheduling_preference}')
+
             try:
                 log.append(f'{request.booked_venue} for {request.party_size} | {request.decision_preference} // ')
                 # Skip if request is not scheduled to run

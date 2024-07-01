@@ -4,8 +4,7 @@ import requests
 from datetime import datetime, timedelta
 import urllib3
 import json
-logger = logging.getLogger('resy')
-logging.basicConfig(filename='resy.log', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 from http.client import HTTPConnection
 

@@ -9,8 +9,7 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
 
-logger = logging.getLogger('tock')
-logging.basicConfig(filename='tock.log', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class Tock(ResPlatform):
 
