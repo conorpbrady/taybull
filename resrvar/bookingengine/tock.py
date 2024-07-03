@@ -17,7 +17,7 @@ class Tock(ResPlatform):
     TIME_FMT = '%I:%M %p'
     FMT = '{} {}'.format(DATE_FMT, TIME_FMT)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, headless=True, *args, **kwargs):
 
 
         self.venue_name = kwargs.get('venue_name')
@@ -39,7 +39,8 @@ class Tock(ResPlatform):
 
         # Make selenium headless, set window size to 1920x1080 so elements will load
         # Set user agent to get around cloudflare verification
-        # options.add_argument('--headless=new')
+        if headless:
+            options.add_argument('--headless=new')
         options.add_argument('--window-size=1920,1080')
         user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
         options.add_argument(f'--user-agent={user_agent}')

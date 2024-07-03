@@ -21,6 +21,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--force', action='store_true', help='Skip random checks to always run')
+        parser.add_argument('--show-browser', action='store_true', help='Do not run in headless mode. Launch browser window')
 
     def handle(self, *args, **options):
 
@@ -76,8 +77,9 @@ class Command(BaseCommand):
                             'res_type': venue.reservation_type,
                             'party_size': request.party_size
                             }
-
-                    booking_engine = Tock(**options)
+                    headless = not options['show-browser']
+
+                    booking_engine = Tock(headless=headless, **options)
                 else:
                     log.append('Res Platform not implemented')
 
