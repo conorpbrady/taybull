@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load tz %}
 
 {% block content %}
 
@@ -16,7 +17,9 @@
   <tbody>
     {% for history in history_list %}
     <tr>
+      {% timezone "US/Eastern" %}
       <td>{{ history.created }}</td>
+      {% endtimezone %}
       <td>{{ history.request }}</td>
       <td>{{ history.log }}</td>
     </tr>
