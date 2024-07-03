@@ -21,10 +21,10 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--force', action='store_true', help='Skip random checks to always run')
-        parser.add_argument('--show-browser', action='store_true', help='Do not run in headless mode. Launch browser window')
+        parser.add_argument('--show_browser', action='store_true', help='Do not run in headless mode. Launch browser window')
 
-    def handle(self, *args, **options):
-
+    def handle(self, *args, **kwargs):
+        print(kwargs)
         logger.info("Run booking invoked")
         open_requests = ReservationRequest.objects.filter(
                 active = True,
@@ -41,7 +41,7 @@ class Command(BaseCommand):
             try:
                 log.append(f'{request.booked_venue} for {request.party_size} | {request.decision_preference} // {request.scheduling_preference}')
                 # Skip if request is not scheduled to run
-                if options['force']:
+                if kwargs['force']:
                     on_schedule = True
                     log.append('Force run')
                 else:
@@ -83,7 +83,9 @@ class Command(BaseCommand):
                             'res_type': venue.reservation_type,
                             'party_size': request.party_size
                             }
-                    headless = not options['show-browser']
+                    headless = True
+                    if kwargs['show_browser']:
+                        headless = False
 
                     booking_engine = Tock(headless=headless, **options)
                 else:
