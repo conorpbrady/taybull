@@ -24,7 +24,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        logger.info("Starting Check")
+        logger.info("Run booking invoked")
         open_requests = ReservationRequest.objects.filter(
                 active = True,
                 status__in = ['Open', 'Created']
