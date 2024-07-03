@@ -36,8 +36,10 @@ class Command(BaseCommand):
             logging.info(f'{request.booked_venue} for {request.party_size} ' \
             f'| {request.decision_preference} // {request.scheduling_preference}')
 
+            # Check to see if request should run. This is in a separate try block so that the exception will post on web log.
+            # If this is successful, and the request should not be ran, then do not show on the web log.
             try:
-                log.append(f'{request.booked_venue} for {request.party_size} | {request.decision_preference} // ')
+                log.append(f'{request.booked_venue} for {request.party_size} | {request.decision_preference} // {request.scheduling_preference}')
                 # Skip if request is not scheduled to run
                 if options['force']:
                     on_schedule = True
@@ -47,7 +49,12 @@ class Command(BaseCommand):
                 if not on_schedule:
                     log.append('Not scheduled to run - skipping request')
                     continue
+            except:
+                history_object = RunHistory(owner = request.owner, request=request, log=' | '.join(log))
+                history_object.save()
 
+
+            try:
                 account_info = AccountInfo.objects.filter(owner = request.owner)[0]
 
                 venue = Venue.objects.get(id = request.booked_venue_id)
@@ -115,10 +122,9 @@ class Command(BaseCommand):
                 log.append(traceback.format_exc())
             finally:
                 # Create record in RunHistory with Status
-                if on_schedule:
-                    history_object = RunHistory(owner = request.owner, request=request, log=' | '.join(log))
-                    history_object.save()
-                    logger.info("Completed run")
+                history_object = RunHistory(owner = request.owner, request=request, log=' | '.join(log))
+                history_object.save()
+                logger.info("Completed run")
 
     def is_scheduled(self, last_run_utc, schedule):
         current_utc = datetime.now(tz=timezone('UTC'))
@@ -149,7 +155,7 @@ class Command(BaseCommand):
             # Give 1/30 chance of running
 
             r = random.randint(1, 30)
-            logger.append(f'random {r}')
+            logger.info(f'random {r}')
             if r != 1:
                 logger.info('unlucky roll')
                 return False
