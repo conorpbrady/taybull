@@ -128,7 +128,7 @@ class Command(BaseCommand):
         if schedule.frequency == 0: # Hourly
             # Wait at least 30 min since last run
             if last_run_utc is not None:
-                since_last_run = current_ut c - last_run_utc
+                since_last_run = current_utc - last_run_utc
                 min_since_last_run = since_last_run.seconds / 60
                 if min_since_last_run < 30:
                     log.append('Has run in the past 30 min')
