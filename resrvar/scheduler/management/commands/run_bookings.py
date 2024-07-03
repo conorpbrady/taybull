@@ -149,7 +149,7 @@ class Command(BaseCommand):
             # Give 1/30 chance of running
 
             r = random.randint(1, 30)
-            log.append(f'random {r}')
+            logger.append(f'random {r}')
             if r != 1:
                 logger.info('unlucky roll')
                 return False
