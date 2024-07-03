@@ -34,7 +34,7 @@ class Command(BaseCommand):
         for request in open_requests:
             log = []
             logging.info(f'{request.booked_venue} for {request.party_size} ' \
-            '| {request.decision_preference} // {request.scheduling_preference}')
+            f'| {request.decision_preference} // {request.scheduling_preference}')
 
             try:
                 log.append(f'{request.booked_venue} for {request.party_size} | {request.decision_preference} // ')
@@ -127,11 +127,12 @@ class Command(BaseCommand):
 
         if schedule.frequency == 0: # Hourly
             # Wait at least 30 min since last run
-            since_last_run = current_utc - last_run_utc
-            min_since_last_run = since_last_run.seconds / 60
-            if min_since_last_run < 30:
-                log.append('Has run in the past 30 min')
-                return False, log
+            if last_run_utc is not None:
+                since_last_run = current_ut c - last_run_utc
+                min_since_last_run = since_last_run.seconds / 60
+                if min_since_last_run < 30:
+                    log.append('Has run in the past 30 min')
+                    return False, log
 
             # Make sure current time is inside start - end time range
             start = local_time.replace(hour=schedule.start_time.hour, minute=schedule.start_time.minute,
