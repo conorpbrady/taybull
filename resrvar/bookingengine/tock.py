@@ -1,7 +1,7 @@
 from bookingengine.resplatform import ResPlatform
 from datetime import datetime, timedelta
 import logging
-from system import platform
+from sys import platform
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
