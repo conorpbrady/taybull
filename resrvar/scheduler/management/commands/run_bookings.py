@@ -24,7 +24,6 @@ class Command(BaseCommand):
         parser.add_argument('--show_browser', action='store_true', help='Do not run in headless mode. Launch browser window')
 
     def handle(self, *args, **kwargs):
-        print(kwargs)
         logger.info("Run booking invoked")
         open_requests = ReservationRequest.objects.filter(
                 active = True,
@@ -177,7 +176,6 @@ class Command(BaseCommand):
             delta = local_time.replace(hour=schedule.specific_time.hour, minute=schedule.specific_time.minute, second=schedule.specific_time.second) - local_time
 
             # Run if within a minute of specified time
-            print(delta.seconds)
             if not (delta.seconds < 61 or delta.seconds > 86339):
                 logger.info('Not specified time')
                 return False
