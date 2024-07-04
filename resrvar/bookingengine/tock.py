@@ -36,7 +36,7 @@ class Tock(ResPlatform):
         if platform == "darwin":
             CHROME_PATH = 'bookingengine/chromedriver_mac64/chromedriver'
         else:
-            CHROME_PATH = 'bookingengine/chromedriver_linux64/chromedriver'
+            CHROME_PATH = '/usr/lib/chromium-browser/chromedriver'
 
         service = webdriver.ChromeService(executable_path=CHROME_PATH)
         options = webdriver.ChromeOptions()
