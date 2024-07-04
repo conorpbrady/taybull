@@ -1,6 +1,7 @@
 from bookingengine.resplatform import ResPlatform
 from datetime import datetime, timedelta
 import logging
+from system import platform
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -32,7 +33,11 @@ class Tock(ResPlatform):
 
 
         # TODO: Make this platform agnostic
-        CHROME_PATH = 'bookingengine/chromedriver_mac64/chromedriver'
+        if platform == "darwin":
+            CHROME_PATH = 'bookingengine/chromedriver_mac64/chromedriver'
+        else:
+            CHROME_PATH = 'bookingengine/chrome-headless-shell-linux64/chrome-headless-shell'
+
         service = webdriver.ChromeService(executable_path=CHROME_PATH)
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
