@@ -1,5 +1,6 @@
 #ChromeDriver
 chromedriver_mac64/
+chrome-headless-shell-linux64/
 
 # Vim swp
 *.swp
