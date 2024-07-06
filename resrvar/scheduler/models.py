@@ -40,6 +40,8 @@ class Venue(BaseModel):
     reservation_type = models.CharField(max_length = 64, blank=True)
     venue_name = models.CharField(max_length = 64, blank=True)
     display_name = models.CharField(max_length = 64, blank=True)
+    tock_multiple_res_types = models.BooleanField(default=False)
+    tock_type_to_select = models.CharField(max_length = 64, blank=True)
 
     class ResPlatform(models.IntegerChoices):
         TOCK = 0

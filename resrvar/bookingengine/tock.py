@@ -192,8 +192,7 @@ class Tock(ResPlatform):
 
     def complete_booking(self):
 
-        self.wait.until(ec.presence_of_element_located(
-            (By.XPATH,' //h1[text() = "Complete your reservation"]')
+        self.wait.until(ec.presence_of_element_located((By.XPATH,' //h1[text() = "Complete your reservation"]')
             ))
 
         #sms_box = self.wait.until(ec.presence_of_element_located((By.ID, 'consentsToSMS')))
@@ -202,19 +201,19 @@ class Tock(ResPlatform):
         # May need to enter CVV
         cvv_xpath = '//input[@id="cvv"]'
         try:
-            cvv_box = self.driver.find_element((By.XPATH, cvv_xpath))
+            cvv_box = self.wait.until(ec.presence_of_element_located((By.XPATH, cvv_xpath)))
             cvv_box.send_keys(self.card_cvv)
         except:
-            pass
+            logger.info('cvv input not found')
         # Acknowledgement checkbox may be present
         ack_xpath = '//input[@data-testid="accept-cancel-policy-check"]'
         try:
-            self.driver.find_element((By.XPATH, ack_xpath)).click()
+            self.driver.find_element(By.XPATH, ack_xpath).click()
         except:
-            pass
+            logger.info('cancellation ack checkbox not found')
 
         complete_button_xpath = '//button//span[text()="Complete reservation"]'
-        self.wait.until(ec.presence_of_element_located((By.XPATH, complete_button_xpath))).click()
+        self.wait.until(ec.element_to_be_clickable((By.XPATH, complete_button_xpath))).click()
 
     def close_questionnaire(self):
         try:
