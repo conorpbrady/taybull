@@ -17,7 +17,7 @@
   <tbody>
     {% for history in history_list %}
     <tr>
-      {% timezone "US/Eastern" %}
+      {% timezone "America/NewYork" %}
       <td>{{ history.created }}</td>
       {% endtimezone %}
       <td>{{ history.request }}</td>
