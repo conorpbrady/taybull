@@ -59,6 +59,7 @@ class AccountInfo(BaseModel):
     resy_auth_token = models.CharField(max_length=512, blank=True)
     resy_payment_id = models.CharField(max_length=32, blank=True)
     tock_email = models.CharField(max_length=128, blank=True)
+    card_cvv = models.CharField(max_length=4, blank=True)
 
     def __str__(self):
         return f'{self.display_name}'

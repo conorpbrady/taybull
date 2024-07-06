@@ -170,7 +170,7 @@ class AccountInfoCreateView(LoginRequiredMixin, CreateView):
     model = AccountInfo
     template_name = 'accountinfo_form.html'
 
-    fields = ['display_name', 'resy_api_key', 'resy_auth_token', 'resy_payment_id', 'tock_email']
+    fields = ['display_name', 'resy_api_key', 'resy_auth_token', 'resy_payment_id', 'tock_email', 'card_cvv']
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
@@ -184,7 +184,7 @@ class AccountInfoUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'accountinfo_form.html'
 
 
-    fields = ['display_name', 'resy_api_key', 'resy_auth_token', 'resy_payment_id', 'tock_email']
+    fields = ['display_name', 'resy_api_key', 'resy_auth_token', 'resy_payment_id', 'tock_email', 'card_cvv']
 
     def get_success_url(self):
         return reverse('accountinfo')
