@@ -80,7 +80,8 @@ class Command(BaseCommand):
                             'venue_id': venue.venue_id,
                             'venue_name': venue.venue_name,
                             'res_type': venue.reservation_type,
-                            'party_size': request.party_size
+                            'party_size': request.party_size,
+                            'card_cvv': request.account.card_cvv
                             }
                     headless = True
                     if kwargs['show_browser']:

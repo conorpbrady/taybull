@@ -25,6 +25,7 @@ class Tock(ResPlatform):
         self.venue_id = kwargs.get('venue_id')
         self.party_size = kwargs.get('party_size')
         self.res_type = kwargs.get('res_type')
+        self.card_cvv = kwargs.get('card_cvv')
 
         if self.venue_name is None or self.venue_id is None:
             raise TypeError
@@ -81,6 +82,7 @@ class Tock(ResPlatform):
             self.update_profile()
         except:
             pass
+
         self.complete_booking()
         self.close_questionnaire()
         confirmation = self.get_confirmation()
@@ -197,6 +199,13 @@ class Tock(ResPlatform):
         #sms_box = self.wait.until(ec.presence_of_element_located((By.ID, 'consentsToSMS')))
         #sms_box.click()
 
+        # May need to enter CVV
+        cvv_xpath = '//input[@id="cvv"]'
+        try:
+            cvv_box = self.driver.find_element((By.XPATH, cvv_xpath))
+            cvv_box.send_keys(self.card_cvv)
+        except:
+            pass
         # Acknowledgement checkbox may be present
         ack_xpath = '//input[@data-testid="accept-cancel-policy-check"]'
         try:

@@ -37,7 +37,7 @@ class Venue(BaseModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 
     venue_id = models.CharField(max_length = 32)
-    reservation_type = models.CharField(max_length = 32, blank=True)
+    reservation_type = models.CharField(max_length = 64, blank=True)
     venue_name = models.CharField(max_length = 64, blank=True)
     display_name = models.CharField(max_length = 64, blank=True)
 
