@@ -199,9 +199,9 @@ class Tock(ResPlatform):
         #sms_box.click()
 
         # May need to enter CVV
-        cvv_xpath = '//input[@id="cvv"]'
         try:
-            cvv_box = self.wait.until(ec.presence_of_element_located((By.XPATH, cvv_xpath)))
+            cvv_box = self.wait.until(ec.presence_of_element_located((By.ID, 'cvv')))
+            cvv_box.click()
             cvv_box.send_keys(self.card_cvv)
         except:
             logger.info('cvv input not found')
