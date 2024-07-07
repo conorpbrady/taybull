@@ -26,6 +26,9 @@ class Tock(ResPlatform):
         self.party_size = kwargs.get('party_size')
         self.res_type = kwargs.get('res_type')
         self.card_cvv = kwargs.get('card_cvv')
+        self.tock_multiple_res_types = kwargs.get('tock_multiple_res_types')
+        self.tock_type_to_select = kwargs.get('tock_type_to_select')
+
 
         if self.venue_name is None or self.venue_id is None:
             raise TypeError
@@ -171,6 +174,13 @@ class Tock(ResPlatform):
                     '//span[text()="{}"]'.format(res_time)
 
         book_button_xpath = '/../../../../../../div[@class="MuiCardHeader-action"]//button'
+
+
+        # If there are multiple reservation types presented after clicking book. Click the first enabled button
+        if self.tock_multiple_res_types:
+            res_button = '/../../../../../../..//div[@class="MuiCollapse-wrapper"]//button[not(disabled)][1]'
+            self.wait.until(ec.element_to_be_clickable((By.XPATH, res_button))).click()
+
 
         # TODO: Rather than waiting for the preferred time to load
         # Get list of all times for the day and compare
