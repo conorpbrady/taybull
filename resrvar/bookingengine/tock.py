@@ -25,6 +25,10 @@ class Tock(ResPlatform):
         self.venue_id = kwargs.get('venue_id')
         self.party_size = kwargs.get('party_size')
         self.res_type = kwargs.get('res_type')
+        self.card_cvv = kwargs.get('card_cvv')
+        self.tock_multiple_res_types = kwargs.get('tock_multiple_res_types')
+        self.tock_type_to_select = kwargs.get('tock_type_to_select')
+        self.specific_date = kwargs.get('specific_date')
 
         if self.venue_name is None or self.venue_id is None:
             raise TypeError
@@ -81,13 +85,18 @@ class Tock(ResPlatform):
             self.update_profile()
         except:
             pass
+
         self.complete_booking()
         self.close_questionnaire()
         confirmation = self.get_confirmation()
         return True, confirmation
 
     def get_available_times(self):
-        days = self.get_available_dates()
+        if self.specific_date is None:
+            days = self.get_available_dates()
+        else:
+            days = [self.specific_date]
+            self.open_calendar(datetime.today())
         times = self.get_times_for_days(days)
         return times
 
@@ -112,6 +121,8 @@ class Tock(ResPlatform):
     def get_times_for_days(self, available_dates):
         # We are assuming get_available_dates was called right before this and we're on the same page
 
+        # Wait for times to load
+        self.wait.until(ec.presence_of_element_located((By.XPATH, '//div[@class="SearchModalExperience is-animating"]')))
         times_xpath = '//div[@id="experience-dialog-content"]//div[@class="SearchModal-body"]'
         times_container = self.wait.until(ec.presence_of_element_located((By.XPATH, times_xpath)))
         available_times = []
@@ -170,6 +181,11 @@ class Tock(ResPlatform):
 
         book_button_xpath = '/../../../../../../div[@class="MuiCardHeader-action"]//button'
 
+
+        # If there are multiple reservation types presented after clicking book. Click the first enabled button
+        res_button = '/../../../../../../..//div[@class="MuiCollapse-wrapper"]//button[not(@disabled)][1]'
+
+
         # TODO: Rather than waiting for the preferred time to load
         # Get list of all times for the day and compare
         # Allow for ~30 min diff on each side
@@ -177,6 +193,9 @@ class Tock(ResPlatform):
         try:
             self.wait.until(ec.presence_of_element_located((By.XPATH, date_xpath))).click()
             self.wait.until(ec.presence_of_element_located((By.XPATH, time_xpath + book_button_xpath))).click()
+            if self.tock_multiple_res_types:
+                self.wait.until(ec.element_to_be_clickable((By.XPATH, time_xpath + res_button))).click()
+
             return True
         except (TimeoutException, NoSuchElementException, StaleElementReferenceException):
             return False
@@ -190,22 +209,34 @@ class Tock(ResPlatform):
 
     def complete_booking(self):
 
-        self.wait.until(ec.presence_of_element_located(
-            (By.XPATH,' //h1[text() = "Complete your reservation"]')
+        self.wait.until(ec.presence_of_element_located((By.XPATH,'//h1[text() = "Complete your reservation"]')
             ))
 
         #sms_box = self.wait.until(ec.presence_of_element_located((By.ID, 'consentsToSMS')))
         #sms_box.click()
 
-        # Acknowledgement checkbox may be present
+        # Cancellation acknowledgement may be present
         ack_xpath = '//input[@data-testid="accept-cancel-policy-check"]'
         try:
-            self.driver.find_element((By.XPATH, ack_xpath)).click()
+            self.wait.until(ec.element_to_be_clickable((By.XPATH, ack_xpath))).click()
         except:
-            pass
+            logger.info('cancellation ack checkbox not found')
+
+
+        # May need to enter CVV
+        try:
+            braintree_iframe = self.wait.until(ec.presence_of_element_located(
+                (By.XPATH, '//iframe[@id="braintree-hosted-field-cvv"]')))
+            self.driver.switch_to.frame(braintree_iframe)
+            cvv_box = self.wait.until(ec.element_to_be_clickable((By.ID, 'cvv')))
+            cvv_box.click()
+            cvv_box.send_keys(self.card_cvv)
+            self.driver.switch_to.default_content()
+        except:
+            logger.info('cvv input not found')
 
         complete_button_xpath = '//button//span[text()="Complete reservation"]'
-        self.wait.until(ec.presence_of_element_located((By.XPATH, complete_button_xpath))).click()
+        self.wait.until(ec.element_to_be_clickable((By.XPATH, complete_button_xpath))).click()
 
     def close_questionnaire(self):
         try:

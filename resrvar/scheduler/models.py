@@ -37,9 +37,11 @@ class Venue(BaseModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 
     venue_id = models.CharField(max_length = 32)
-    reservation_type = models.CharField(max_length = 32, blank=True)
+    reservation_type = models.CharField(max_length = 64, blank=True)
     venue_name = models.CharField(max_length = 64, blank=True)
     display_name = models.CharField(max_length = 64, blank=True)
+    tock_multiple_res_types = models.BooleanField(default=False)
+    tock_type_to_select = models.CharField(max_length = 64, blank=True)
 
     class ResPlatform(models.IntegerChoices):
         TOCK = 0
@@ -59,6 +61,7 @@ class AccountInfo(BaseModel):
     resy_auth_token = models.CharField(max_length=512, blank=True)
     resy_payment_id = models.CharField(max_length=32, blank=True)
     tock_email = models.CharField(max_length=128, blank=True)
+    card_cvv = models.CharField(max_length=4, blank=True)
 
     def __str__(self):
         return f'{self.display_name}'

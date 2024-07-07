@@ -76,11 +76,18 @@ class Command(BaseCommand):
                     booking_engine = Resy(**options)
 
                 elif venue.res_platform == 0: # Tock:
+                    day_to_select = None
+                    if decision_prefs.specific_date_flag:
+                        day_to_select = decision_prefs.specific_date
                     options = {
                             'venue_id': venue.venue_id,
                             'venue_name': venue.venue_name,
                             'res_type': venue.reservation_type,
-                            'party_size': request.party_size
+                            'party_size': request.party_size,
+                            'card_cvv': request.account.card_cvv,
+                            'tock_multiple_res_types': venue.tock_multiple_res_types,
+                            'tock_type_to_select': venue.tock_type_to_select,
+                            'specific_date': day_to_select
                             }
                     headless = True
                     if kwargs['show_browser']:

@@ -25,7 +25,8 @@ class VenueListView(LoginRequiredMixin, generic.ListView):
 class VenueCreateView(LoginRequiredMixin, CreateView):
     model = Venue
     template_name = 'venue_form.html'
-    fields = ['venue_name', 'venue_id', 'reservation_type', 'display_name', 'res_platform']
+    fields = ['venue_name', 'venue_id', 'reservation_type', 'display_name', 'res_platform',
+              'tock_multiple_res_types', 'tock_type_to_select']
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
@@ -37,7 +38,8 @@ class VenueCreateView(LoginRequiredMixin, CreateView):
 class VenueUpdateView(LoginRequiredMixin, UpdateView):
     model = Venue
     template_name = 'venue_form.html'
-    fields = ['venue_name', 'venue_id', 'reservation_type', 'display_name', 'res_platform']
+    fields = ['venue_name', 'venue_id', 'reservation_type', 'display_name', 'res_platform',
+              'tock_multiple_res_types', 'tock_type_to_select']
 
     def get_success_url(self):
         return reverse('venues')
@@ -170,7 +172,7 @@ class AccountInfoCreateView(LoginRequiredMixin, CreateView):
     model = AccountInfo
     template_name = 'accountinfo_form.html'
 
-    fields = ['display_name', 'resy_api_key', 'resy_auth_token', 'resy_payment_id', 'tock_email']
+    fields = ['display_name', 'resy_api_key', 'resy_auth_token', 'resy_payment_id', 'tock_email', 'card_cvv']
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
@@ -184,7 +186,7 @@ class AccountInfoUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'accountinfo_form.html'
 
 
-    fields = ['display_name', 'resy_api_key', 'resy_auth_token', 'resy_payment_id', 'tock_email']
+    fields = ['display_name', 'resy_api_key', 'resy_auth_token', 'resy_payment_id', 'tock_email', 'card_cvv']
 
     def get_success_url(self):
         return reverse('accountinfo')
