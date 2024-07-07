@@ -82,6 +82,8 @@ class Command(BaseCommand):
                             'res_type': venue.reservation_type,
                             'party_size': request.party_size,
                             'card_cvv': request.account.card_cvv
+                            'tock_multiple_res_types': request.venue.tock_multiple_res_types,
+                            'tock_type_to_select': request.venue.tock_type_to_select
                             }
                     headless = True
                     if kwargs['show_browser']:
