@@ -220,3 +220,6 @@ class Tock(ResPlatform):
         confirmation_xpath = '//p[@data-testid="receipt-confirmation-id"]'
         confirmation_element = self.wait.until(ec.presence_of_element_located((By.XPATH, confirmation_xpath)))
         return confirmation_element.get_attribute('innerText')
+
+    def close(self):
+        self.driver.close()

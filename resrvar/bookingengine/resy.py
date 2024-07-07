@@ -213,3 +213,6 @@ class Resy(ResPlatform):
             return data['reservation_id']
         except:
             pass
+
+    def close(self):
+        pass
