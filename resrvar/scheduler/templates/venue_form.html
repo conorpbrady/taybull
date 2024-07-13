@@ -1,13 +1,35 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<form method="POST">
+  <form method="POST">
   {% csrf_token %}
   <table>
     {{ form.as_table }}
   </table>
   <input type="Submit">
 </form>
+
+<script>
+
+    const tockFields = ["id_venue_name", "id_reservation_type", "id_tock_multiple_res_types",
+      "id_tock_type_to_select"]
+    const resyFields = ["id_venue_id"]
+
+    const setVisibility = (event) => {
+      const platform = event.currentTarget.value;
+      tockVisibility = platform == 0 ? "table-row": "none";
+      resyVisibility = platform == 1 ? "table-row": "none";
+      for(field of tockFields) {
+        document.getElementById(field).parentElement.parentElement.style.display = tockVisibility
+        }
+      for(field of resyFields) {
+        document.getElementById(field).parentElement.parentElement.style.display = resyVisibility
+      }
+    }
+
+    document.getElementById("id_res_platform").addEventListener("change", setVisibility, false)
+
+  </script>
 
 
 

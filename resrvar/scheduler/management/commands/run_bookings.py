@@ -20,9 +20,12 @@ class Command(BaseCommand):
     help = "Run booking engine"
 
     def add_arguments(self, parser):
-        parser.add_argument('--force', action='store_true', help='Skip random checks to always run')
-        parser.add_argument('--show_browser', action='store_true', help='Do not run in headless mode. Launch browser window')
-        parser.add_argument('--test', action='store_true', help='Test mode. Will exit before making booking')
+        parser.add_argument('--force', action='store_true',
+                            help='Skip random checks to always run')
+        parser.add_argument('--show_browser', action='store_true',
+                            help='Do not run in headless mode. Launch browser window')
+        parser.add_argument('--test', action='store_true',
+                            help='Test mode. Will exit before making booking')
 
     def handle(self, *args, **kwargs):
         logger.info("Run booking invoked")
@@ -36,10 +39,12 @@ class Command(BaseCommand):
             logging.info(f'{request.booked_venue} for {request.party_size} ' \
             f'| {request.decision_preference} // {request.scheduling_preference}')
 
-            # Check to see if request should run. This is in a separate try block so that the exception will post on web log.
+            # Check to see if request should run
+            # This is in a separate try block so that the exception will post on web log.
             # If this is successful, and the request should not be ran, then do not show on the web log.
             try:
-                log.append(f'{request.booked_venue} for {request.party_size} | {request.decision_preference} // {request.scheduling_preference}')
+                log.append(f'{request.booked_venue} for {request.party_size}' \
+                        f'| {request.decision_preference} // {request.scheduling_preference}')
                 # Skip if request is not scheduled to run
                 if kwargs['force']:
                     on_schedule = True
@@ -127,7 +132,7 @@ class Command(BaseCommand):
                             log.append('Test Mode. Backing out before booking')
                     else:
                         log.append('No times to select')
-
+                logger.info(f'Test status: {kwargs["test"]}')
                 if not kwargs['test']:
                     request.last_run = django_tz.now()
                     request.save()

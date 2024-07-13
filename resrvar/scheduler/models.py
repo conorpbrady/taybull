@@ -21,7 +21,7 @@ class DecisionPreference(BaseModel):
     first_available = models.BooleanField(default=False)
     ideal_time = models.CharField(max_length=16)
     specific_date_flag = models.BooleanField(default=False)
-    specific_date = models.DateField()
+    specific_date = models.DateField(blank=True)
     threshold = models.IntegerField()
     mon_rank = models.IntegerField(default=0)
     tue_rank = models.IntegerField(default=0)
@@ -30,8 +30,10 @@ class DecisionPreference(BaseModel):
     fri_rank = models.IntegerField(default=0)
     sat_rank = models.IntegerField(default=0)
     sun_rank = models.IntegerField(default=0)
-    active = models.BooleanField(default=True)
 
+    def clean(self):
+        if self.specific_date_flag and not self.specific_date:
+                raise ValidationError('Must specify specific date')
 
     def __str__(self):
         return f'{self.display_name}'
@@ -39,7 +41,7 @@ class DecisionPreference(BaseModel):
 class Venue(BaseModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 
-    venue_id = models.CharField(max_length = 32)
+    venue_id = models.CharField(max_length = 32, blank=True)
     reservation_type = models.CharField(max_length = 64, blank=True)
     venue_name = models.CharField(max_length = 64, blank=True)
     display_name = models.CharField(max_length = 64, blank=True)
@@ -54,6 +56,18 @@ class Venue(BaseModel):
     res_platform = models.IntegerField(choices=ResPlatform.choices)
     active = models.BooleanField(default=True)
 
+    def clean(self):
+        if self.res_platform == 0:
+            if not self.reservation_type:
+                raise ValidationError('Reservation Type must be entered for Tock venue')
+            if not self.venue_name:
+                raise ValidationError('Venue name must be entered for Tock venue')
+            if self.tock_multiple_res_types and not self.tock_type_to_select:
+                raise ValidationError('Tock Res type must be selected')
+        if self.res_platform == 1:
+            if not self.venue_id:
+                raise ValidationError('Venue Id must be entered for Resy venue'
+                                      )
     def __str__(self):
         return f'{self.display_name}'
 
