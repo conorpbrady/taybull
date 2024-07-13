@@ -29,6 +29,7 @@ class Tock(ResPlatform):
         self.tock_multiple_res_types = kwargs.get('tock_multiple_res_types')
         self.tock_type_to_select = kwargs.get('tock_type_to_select')
         self.specific_date = kwargs.get('specific_date')
+        self.first_available = kwargs.get('first_available')
 
         if self.venue_name is None or self.venue_id is None:
             raise TypeError
@@ -111,11 +112,11 @@ class Tock(ResPlatform):
 
         available_elements = cal_element.find_elements(By.XPATH, available_xpath)
 
-        available_dates = []
         for element in available_elements:
             date_str = element.get_attribute('aria-label')
             available_dates.append(date_str)
-
+            if self.first_available: # If first_available is set, return first available date only
+                break
         return available_dates
 
     def get_times_for_days(self, available_dates):
@@ -144,6 +145,10 @@ class Tock(ResPlatform):
                     time_slot_str = '{} {}'.format(day, time_str)
                     time_slot = datetime.strptime(time_slot_str, self.FMT)
                     available_times.append(time_slot)
+                    # Not sure if I want to keep this - will return first time slot only
+                    # Leaving this out would let the DE select the time based on preference
+                    if self.first_available:
+                        break
 
         return available_times
 

@@ -35,6 +35,8 @@ class Resy(ResPlatform):
         self.venue_id = kwargs.get('venue_id')
         self.party_size = kwargs.get('party_size')
         self.payment_id = kwargs.get('payment_id')
+        self.first_available = kwargs.get('first_available')
+
         if self.venue_id is None or self.party_size is None:
             raise TypeError
 
@@ -126,6 +128,9 @@ class Resy(ResPlatform):
         for dateObj in data['scheduled']:
             if dateObj['inventory']['reservation'] == 'available':
                 available_days.append(dateObj['date'])
+            if self.first_available:
+                break
+
         return available_days
 
     def find_bookings(self, day):

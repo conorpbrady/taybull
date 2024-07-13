@@ -88,6 +88,7 @@ class Command(BaseCommand):
                             'tock_multiple_res_types': venue.tock_multiple_res_types,
                             'tock_type_to_select': venue.tock_type_to_select,
                             'specific_date': day_to_select
+                            'first_available': decision_prefs.first_available
                             }
                     headless = True
                     if kwargs['show_browser']:
@@ -142,13 +143,13 @@ class Command(BaseCommand):
         current_utc = datetime.now(tz=timezone('UTC'))
         local_time = datetime.now(tz=timezone('US/Eastern'))
 
-        if schedule.frequency == 0: # Hourly
-            # Wait at least 30 min since last run
+        if schedule.specific_time is None: # Hourly
+            wait_time = int(schedule.frequency / 2) # Wait for half the frequency time
             if last_run_utc is not None:
                 since_last_run = current_utc - last_run_utc
                 min_since_last_run = since_last_run.seconds / 60
-                if min_since_last_run < 30:
-                    logger.info('Has run in the past 30 min')
+                if min_since_last_run < wait_time:
+                    logger.info(f'Has run in the past {wait_time} min')
                     return False
 
             # Make sure current time is inside start - end time range
@@ -157,16 +158,16 @@ class Command(BaseCommand):
             end = local_time.replace(hour=schedule.end_time.hour, minute=schedule.end_time.minute,
                                       second=schedule.end_time.second)
             if local_time < start: # Has not past start time
-                logger.info('Earlier thani start time')
+                logger.info('Earlier than start time')
                 return False
 
             if local_time > end: # Has past end time
                 logger.info('Later than end time')
                 return False
 
-            # Give 1/30 chance of running
+            # Give 1 / {half_frequency} chance of running
 
-            r = random.randint(1, 30)
+            r = random.randint(1, wait_time)
             logger.info(f'random {r}')
             if r != 1:
                 logger.info('unlucky roll')
@@ -174,7 +175,7 @@ class Command(BaseCommand):
 
             return True
 
-        elif schedule.frequency == 1: # Daily
+        else: # Daily check at specified time
             day_dict = {'Mon': schedule.mon_run, 'Tue': schedule.tue_run, 'Wed': schedule.wed_run,
                         'Thu': schedule.thu_run, 'Fri': schedule.fri_run, 'Sat': schedule.sat_run,
                         'Sun': schedule.sun_run}

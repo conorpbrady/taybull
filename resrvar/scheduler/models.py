@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils import timezone
 from datetime import datetime
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 class BaseModel(models.Model):
@@ -17,6 +18,7 @@ class DecisionPreference(BaseModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     active = models.BooleanField(default=True)
     display_name = models.CharField(max_length=32, null=True)
+    first_available = models.BooleanField(default=False)
     ideal_time = models.CharField(max_length=16)
     specific_date_flag = models.BooleanField(default=False)
     specific_date = models.DateField()
@@ -29,6 +31,7 @@ class DecisionPreference(BaseModel):
     sat_rank = models.IntegerField(default=0)
     sun_rank = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
+
 
     def __str__(self):
         return f'{self.display_name}'
@@ -70,11 +73,7 @@ class SchedulingPreference(BaseModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     display_name = models.CharField(max_length=32, blank=True)
 
-    class Frequency(models.IntegerChoices):
-            HOURLY = 0
-            DAILY = 1
-
-    frequency = models.IntegerField(choices=Frequency.choices)
+    frequency = models.IntegerField(null=True, blank=True)
     mon_run = models.BooleanField(default=True)
     tue_run = models.BooleanField(default=True)
     wed_run = models.BooleanField(default=True)
@@ -82,12 +81,18 @@ class SchedulingPreference(BaseModel):
     fri_run = models.BooleanField(default=True)
     sat_run = models.BooleanField(default=True)
     sun_run = models.BooleanField(default=True)
-    specific_time = models.TimeField()
+    specific_time = models.TimeField(null=True, blank=True)
     start_time = models.TimeField(null=True)
     end_time = models.TimeField(null=True)
 
     def __str__(self):
             return f'{self.display_name}'
+
+    def clean(self):
+        if self.frequency and self.specific_time:
+            raise ValidationError('Cannot set both Frequency and Specific Time')
+        if not self.frequency and not self.specific_time:
+            raise ValidationError('Set Frequency or Specific Time')
 
 class ReservationRequest(BaseModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)

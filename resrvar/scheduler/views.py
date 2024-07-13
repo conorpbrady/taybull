@@ -106,7 +106,7 @@ class PreferenceListView(LoginRequiredMixin, generic.ListView):
 class PreferenceCreateView(LoginRequiredMixin, CreateView):
     model = DecisionPreference
     template_name = 'preference_form.html'
-    fields = ['display_name', 'ideal_time', 'specific_date_flag', 'specific_date', 'threshold',
+    fields = ['display_name', 'ideal_time', 'first_available', 'specific_date_flag', 'specific_date', 'threshold',
               'mon_rank', 'tue_rank', 'wed_rank', 'thu_rank', 'fri_rank', 'sat_rank', 'sun_rank']
 
     def form_valid(self, form):
@@ -121,7 +121,7 @@ class PreferenceUpdateView(LoginRequiredMixin, UpdateView):
     model = DecisionPreference
     template_name = 'preference_form.html'
 
-    fields = ['display_name', 'ideal_time', 'specific_date_flag', 'specific_date', 'threshold',
+    fields = ['display_name', 'ideal_time', 'first_available', 'specific_date_flag', 'specific_date', 'threshold',
               'mon_rank', 'tue_rank', 'wed_rank', 'thu_rank', 'fri_rank', 'sat_rank', 'sun_rank']
 
     def get_success_url(self):
