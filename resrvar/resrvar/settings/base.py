@@ -150,15 +150,15 @@ LOGGING = {
         'loggers': {
             'resy': {
                 'handlers': ['file'],
-                'level': 'DEBUG',
+                'level': 'INFO',
                 },
             'tock': {
                 'handlers': ['file'],
-                'level': 'DEBUG',
+                'level': 'INFO',
                 },
             '': {
                 'handlers': ['file'],
-                'level': 'DEBUG',
+                'level': 'INFO',
                 },
             },
         }
