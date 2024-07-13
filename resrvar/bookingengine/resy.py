@@ -83,6 +83,8 @@ class Resy(ResPlatform):
             if len(days) > 0:
                 logger.info('Found available days: %s', ','.join(days))
                 all_days += days
+                if self.first_available:
+                    break
             else:
                 logger.info('No available days between %s and %s', start, end)
 

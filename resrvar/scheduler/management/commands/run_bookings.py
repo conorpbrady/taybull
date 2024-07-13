@@ -22,6 +22,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--force', action='store_true', help='Skip random checks to always run')
         parser.add_argument('--show_browser', action='store_true', help='Do not run in headless mode. Launch browser window')
+        parser.add_argument('--test', action='store_true', help='Test mode. Will exit before making booking')
 
     def handle(self, *args, **kwargs):
         logger.info("Run booking invoked")
@@ -65,7 +66,8 @@ class Command(BaseCommand):
                     options = {
                             'venue_id': venue.venue_id,
                             'party_size': request.party_size,
-                            'payment_id': account_info.resy_payment_id
+                            'payment_id': account_info.resy_payment_id,
+                            'first_available': decision_prefs.first_available
                             }
 
                     # TODO: Find a way to import auth token / api key
@@ -87,7 +89,7 @@ class Command(BaseCommand):
                             'card_cvv': request.account.card_cvv,
                             'tock_multiple_res_types': venue.tock_multiple_res_types,
                             'tock_type_to_select': venue.tock_type_to_select,
-                            'specific_date': day_to_select
+                            'specific_date': day_to_select,
                             'first_available': decision_prefs.first_available
                             }
                     headless = True
@@ -114,18 +116,22 @@ class Command(BaseCommand):
                     if len(de_times) > 0:
                         selected_time_slot = de_times[0]
                         log.append(f'selecting time slot {selected_time_slot}')
-
-                        success, confirmation = booking_engine.book(selected_time_slot)
-                        # Change Status based on result
-                        if success:
-                            log.append(f'Booking confirmation {confirmation}')
-                            request.status = 'Completed'
-                            request.confirmation = confirmation
+                        if not kwargs['test']:
+                            success, confirmation = booking_engine.book(selected_time_slot)
+                            # Change Status based on result
+                            if success:
+                                log.append(f'Booking confirmation {confirmation}')
+                                request.status = 'Completed'
+                                request.confirmation = confirmation
+                        else:
+                            log.append('Test Mode. Backing out before booking')
                     else:
                         log.append('No times to select')
 
-                    request.last_run = django_tz.now()
-                    request.save()
+                    if not kwargs['test']:
+                        request.last_run = django_tz.now()
+                        request.save()
+
             except Exception as e:
                 log.append("Exception thrown when running request")
                 log.append(traceback.format_exc())
