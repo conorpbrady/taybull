@@ -128,9 +128,9 @@ class Command(BaseCommand):
                     else:
                         log.append('No times to select')
 
-                    if not kwargs['test']:
-                        request.last_run = django_tz.now()
-                        request.save()
+                if not kwargs['test']:
+                    request.last_run = django_tz.now()
+                    request.save()
 
             except Exception as e:
                 log.append("Exception thrown when running request")
