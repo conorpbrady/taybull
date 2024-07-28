@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from scheduler.models import *
 from bookingengine.resy import Resy
 from bookingengine.tock import Tock
+from bookingengine.resy_selenium import ResySelenium
 from bookingengine.decision_engine import DecisionEngine
 import traceback
 from dotenv import dotenv_values
@@ -76,6 +77,15 @@ class Command(BaseCommand):
                             'auth_token': request.account.resy_auth_token
                             })
                     booking_engine = Resy(**options)
+
+                elif venue.res_platform == 2: # Resy Selenium Flow
+                    options = {
+                            'venue_id': venue.venue_id,
+                            'party_size': request.party_size,
+                            'payment_id': account_info.resy_payment_id,
+                            'first_available': decision_prefs.first_available
+                            }
+                    booking_enging = ResySelenium(**options)
 
                 elif venue.res_platform == 0: # Tock:
                     day_to_select = None

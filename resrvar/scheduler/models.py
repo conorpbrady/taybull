@@ -49,6 +49,7 @@ class Venue(BaseModel):
     class ResPlatform(models.IntegerChoices):
         TOCK = 0
         RESY = 1
+        RESY_SELENIUM = 2
         OPENTABLE = 3
 
     res_platform = models.IntegerField(choices=ResPlatform.choices)
