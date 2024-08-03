@@ -85,7 +85,8 @@ class Command(BaseCommand):
                             'payment_id': account_info.resy_payment_id,
                             'first_available': decision_prefs.first_available
                             }
-                    booking_enging = ResySelenium(**options)
+                    options.update(auth_options)
+                    booking_engine = ResySelenium(**options)
 
                 elif venue.res_platform == 0: # Tock:
                     day_to_select = None

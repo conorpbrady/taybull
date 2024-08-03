@@ -43,19 +43,19 @@ class ResySelenium(ResPlatform):
 
         driver.get('https://resy.com')
         login_button_xp = '//button[@data-test-id="menu_container-button-log_in"]'
-        login_button = wait.until(ec.presence_of_element_located((By.XPATH, login_button_xp)))
+        login_button = self.wait.until(ec.presence_of_element_located((By.XPATH, login_button_xp)))
         login_button.click()
 
         use_email_pw_xp = '//div[@class="AuthView__Footer"]/button'
-        use_email_pw = wait.until(ec.presence_of_element_located((By.XPATH, use_email_pw_xp)))
+        use_email_pw = self.wait.until(ec.presence_of_element_located((By.XPATH, use_email_pw_xp)))
         use_email_pw.click()
 
-        email_input = wait.until(ec.presence_of_element_located((By.ID, 'email')))
-        email_input.send_keys('conorpbrady@gmail.com')
-        pass_input = wait.until(ec.presence_of_element_located((By.ID, 'password')))
-        pass_input.send_keys('G@t0rade##')
+        email_input = self.wait.until(ec.presence_of_element_located((By.ID, 'email')))
+        email_input.send_keys(kwargs.get('resy_email'))
+        pass_input = self.wait.until(ec.presence_of_element_located((By.ID, 'password')))
+        pass_input.send_keys(kwargs.get('resy_password'))
 
-        driver.find_element(By.XPATH, '//button[text()="Continue"]').click()
+        self.driver.find_element(By.XPATH, '//button[text()="Continue"]').click()
         wait.until(ec.presence_of_element_located((By.XPATH, '//div[@class="ProfilePhoto"]')))
 
     def book(self, time_slot):
@@ -65,8 +65,8 @@ class ResySelenium(ResPlatform):
         fmt = '%B %d, %Y'
         months = 3
         base_url = 'https://resy.com/cities/philadelphia-pa/venues/picnic'
-        driver.get(base_url)
-        calendar_button = wait.until(ec.presence_of_element_located(
+        self.driver.get(base_url)
+        calendar_button = self.wait.until(ec.presence_of_element_located(
             (By.ID, 'VenuePage__calendar__quick-picker__ellipsis')))
         calendar_button.click()
 
@@ -75,7 +75,7 @@ class ResySelenium(ResPlatform):
 
         for i in range(months):
             calendar_table_xp = '//table[@class="CalendarMonth__Table"]'
-            calendar_table = wait.until(ec.presence_of_element_located((By.XPATH, calendar_table_xp)))
+            calendar_table = self.wait.until(ec.presence_of_element_located((By.XPATH, calendar_table_xp)))
 
             available_day_elements = calendar_table.find_elements(By.XPATH,
                 './/button[contains(@class, "ResyCalendar-day--available")' \
@@ -89,7 +89,7 @@ class ResySelenium(ResPlatform):
                 all_days.append(datetime.strptime(al, fmt))
 
             next_month_xp = '//button[contains(@class, "ResyCalendar__nav_right")]'
-            driver.find_element(By.XPATH, next_month_xp).click()
+            self.driver.find_element(By.XPATH, next_month_xp).click()
 
         return all_days
 
