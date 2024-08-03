@@ -26,7 +26,7 @@ class VenueCreateView(LoginRequiredMixin, CreateView):
     model = Venue
     template_name = 'venue_form.html'
     fields = ['venue_name', 'venue_id', 'reservation_type', 'display_name', 'res_platform',
-              'tock_multiple_res_types', 'tock_type_to_select']
+              'tock_multiple_res_types', 'tock_type_to_select', 'resy_url']
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
@@ -39,7 +39,7 @@ class VenueUpdateView(LoginRequiredMixin, UpdateView):
     model = Venue
     template_name = 'venue_form.html'
     fields = ['venue_name', 'venue_id', 'reservation_type', 'display_name', 'res_platform',
-              'tock_multiple_res_types', 'tock_type_to_select']
+              'tock_multiple_res_types', 'tock_type_to_select', 'resy_url']
 
     def get_success_url(self):
         return reverse('venues')
