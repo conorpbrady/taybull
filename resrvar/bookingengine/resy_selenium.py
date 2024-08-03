@@ -37,11 +37,22 @@ class ResySelenium(ResPlatform):
         self.driver = webdriver.Chrome(service=service, options=options)
         self.wait = WebDriverWait(self.driver, 5)
 
+
+        self.party_size = kwargs.get('party_size')
+        self.first_available = kwargs.get('first_available')
+        self.venue_url = kwargs.get('venue_url')
+
+        self.time_slots = {}
+
         super().__init__(None)
 
     def authenticate(self, *args, **kwargs):
 
-        driver.get('https://resy.com')
+        # Skipping auth for now. Too many successful logins will result in an account lockout
+        # Need to save cookies w/ selenium and stay logged in
+        return
+
+        self.driver.get('https://resy.com')
         login_button_xp = '//button[@data-test-id="menu_container-button-log_in"]'
         login_button = self.wait.until(ec.presence_of_element_located((By.XPATH, login_button_xp)))
         login_button.click()
@@ -56,16 +67,35 @@ class ResySelenium(ResPlatform):
         pass_input.send_keys(kwargs.get('resy_password'))
 
         self.driver.find_element(By.XPATH, '//button[text()="Continue"]').click()
-        wait.until(ec.presence_of_element_located((By.XPATH, '//div[@class="ProfilePhoto"]')))
+        self.wait.until(ec.presence_of_element_located((By.XPATH, '//div[@class="ProfilePhoto"]')))
 
     def book(self, time_slot):
-        pass
+        day = time_slot.strftime('%Y-%M-%d')
+        res_id = self.time_slots[time_slot]
+
+        url = f'{self.venue_url}?date={day}&seats={self.party_size}'
+        self.driver.get(url)
+        res_button = self.wait.until(ec.presence_of_element_located((By.ID, res_id)))
+        res_button.click()
+        return
+        book_button = self.wait.until(ec.presence_of_element_Located((By.ID, 'order_summary_page-button-book')))
+        book_button.click()
+
 
     def get_available_days(self):
         fmt = '%B %d, %Y'
         months = 3
-        base_url = 'https://resy.com/cities/philadelphia-pa/venues/picnic'
-        self.driver.get(base_url)
+        today = datetime.now().strftime('%Y-%m-%d')
+        url = f'{self.venue_url}?date={today}&seats={self.party_size}'
+        self.driver.get(url)
+
+        # Check for newsletter popup and close
+        # try:
+        #    close = self.wait.until(ec.presence_of_element_located((By.XPATH, '//button[@aria-label="Close"]')))
+        #    close.click()
+        #except:
+        #    pass
+
         calendar_button = self.wait.until(ec.presence_of_element_located(
             (By.ID, 'VenuePage__calendar__quick-picker__ellipsis')))
         calendar_button.click()
@@ -94,8 +124,27 @@ class ResySelenium(ResPlatform):
         return all_days
 
     def get_available_times(self):
-        days = get_available_days(self)
+        days = self.get_available_days()
         # For all days
         # Call https://resy.com/cities/philadelphia-pa/venues/picnic?date=2024-08-07&seats=2
         # Get all times and res types
         # May need a flag to say any res type or specific one
+
+        for day in days:
+            day_string = day.strftime('%Y-%m-%d')
+            url = f'{self.venue_url}?date={day_string}&seats={self.party_size}'
+            self.driver.get(url)
+            shift_container_xp = '//div[@class="ReservationButtonList ShiftInventory__shift__slots"]'
+            shift_container = self.wait.until(ec.presence_of_element_located((By.XPATH, shift_container_xp)))
+            shifts = shift_container.find_elements(By.XPATH, './button[contains(@class, "primary")]')
+            for shift in shifts:
+                res_id = shift.get_attribute('id')
+                # rgs://resy/5408/1125119/2/2024-08-07/2024-08-07/17:00:00/2/Patio
+                split = res_id.split('/')
+                time_slot = datetime.strptime(f'{split[7]} {split[8]}', '%Y-%m-%d %H:%M:%S')
+                self.time_slots[time_slot] = res_id
+
+        # Not a huge fan of this. Right now the date/time is the key, but there could be multiple
+        # res types for a single time slot e.g. Patio / Indoor Dining both at 8/4/24 20:30
+
+        return self.time_slots.keys()

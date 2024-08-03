@@ -83,7 +83,8 @@ class Command(BaseCommand):
                             'venue_id': venue.venue_id,
                             'party_size': request.party_size,
                             'payment_id': account_info.resy_payment_id,
-                            'first_available': decision_prefs.first_available
+                            'first_available': decision_prefs.first_available,
+                            'venue_url': venue.resy_url
                             }
                     options.update(auth_options)
                     booking_engine = ResySelenium(**options)
