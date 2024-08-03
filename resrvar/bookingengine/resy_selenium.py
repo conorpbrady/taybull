@@ -25,6 +25,7 @@ class ResySelenium(ResPlatform):
         service = webdriver.ChromeService(executable_path=CHROME_PATH)
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        options.add_argument("--user-data-dir=chrome-data")
 
         # Make selenium headless, set window size to 1920x1080 so elements will load
         # Set user agent to get around cloudflare verification

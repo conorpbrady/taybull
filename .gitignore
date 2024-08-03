@@ -1,9 +1,10 @@
 # Mac files
 .DS_Store
 
-#ChromeDriver
+#ChromeDriver and Chrome data dir
 chromedriver_mac64/
 chrome-headless-shell-linux64/
+chrome-data/
 
 # Vim swp
 *.swp
