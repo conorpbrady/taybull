@@ -42,7 +42,7 @@ class ResySelenium(ResPlatform):
         self.party_size = kwargs.get('party_size')
         self.first_available = kwargs.get('first_available')
         self.venue_url = kwargs.get('venue_url')
-
+        self.specific_date = kwargs.get('specific_date')
         self.time_slots = {}
 
         super().__init__(None)
@@ -125,7 +125,10 @@ class ResySelenium(ResPlatform):
         return all_days
 
     def get_available_times(self):
-        days = self.get_available_days()
+        if self.specific_date is not None:
+            days = [self.specific_date]
+        else:
+            days = self.get_available_days()
         # For all days
         # Call https://resy.com/cities/philadelphia-pa/venues/picnic?date=2024-08-07&seats=2
         # Get all times and res types
@@ -135,6 +138,12 @@ class ResySelenium(ResPlatform):
             day_string = day.strftime('%Y-%m-%d')
             url = f'{self.venue_url}?date={day_string}&seats={self.party_size}'
             self.driver.get(url)
+            selector_xp = '//div[@class="VenuePage__Selector-Wrapper"]'
+            none_available_xp = '//div[@class="VenuePage__context-text"]'
+
+            self.wait.until(ec.presence_of_element_located((By.XPATH, selector_xp)))
+            if self.driver.find_element(By.XPATH, selector_xp + none_available_xp):
+                continue
             shift_container_xp = '//div[@class="ReservationButtonList ShiftInventory__shift__slots"]'
             shift_container = self.wait.until(ec.presence_of_element_located((By.XPATH, shift_container_xp)))
             shifts = shift_container.find_elements(By.XPATH, './button[contains(@class, "primary")]')

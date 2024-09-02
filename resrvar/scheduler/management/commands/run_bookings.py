@@ -60,6 +60,10 @@ class Command(BaseCommand):
 
                 venue = Venue.objects.get(id = request.booked_venue_id)
                 decision_prefs = DecisionPreference.objects.get(id = request.decision_preference_id)
+                day_to_select = None
+                if decision_prefs.specific_date_flag:
+                    day_to_select = decision_prefs.specific_date
+
                 auth_options = {
                         **dotenv_values('.accounts.env')
                         }
@@ -84,15 +88,13 @@ class Command(BaseCommand):
                             'party_size': request.party_size,
                             'payment_id': account_info.resy_payment_id,
                             'first_available': decision_prefs.first_available,
-                            'venue_url': venue.resy_url
+                            'venue_url': venue.resy_url,
+                            'specific_date': day_to_select
                             }
                     options.update(auth_options)
                     booking_engine = ResySelenium(**options)
 
                 elif venue.res_platform == 0: # Tock:
-                    day_to_select = None
-                    if decision_prefs.specific_date_flag:
-                        day_to_select = decision_prefs.specific_date
                     options = {
                             'venue_id': venue.venue_id,
                             'venue_name': venue.venue_name,
