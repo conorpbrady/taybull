@@ -153,6 +153,7 @@ class Command(BaseCommand):
                 history_object.save()
                 try:
                     booking_engine.close()
+                    logger.info("Closing booking engine instance")
                 except:
                     pass
                 logger.info("Completed run")

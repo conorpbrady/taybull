@@ -149,3 +149,6 @@ class ResySelenium(ResPlatform):
         # res types for a single time slot e.g. Patio / Indoor Dining both at 8/4/24 20:30
 
         return self.time_slots.keys()
+
+    def close(self):
+            self.driver.close()
